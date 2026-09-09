@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : <https://store.webkul.com/license.html/> -->
+
+<odoo>
+    <data>
+        <record id="saas_module_kanban_view" model="ir.ui.view">
+            <field name="name">saas.module.kanban.view</field>
+            <field name="model">saas.module</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kanban_mobile">
+                    <field name="id"/>
+                    <field name="image"/>
+                    <field name="name"/>
+                    <field name="technical_name"/>
+                    <field name="categ_id"/>
+                    <templates>
+                        <t t-name="card" class="flex-row">
+                            <aside class="me-2">
+                                <field
+                                    name="image"
+                                    widget="image"
+                                    alt="Module Image"
+                                    options="{'img_class': 'w-100 object-fit-contain'}"
+                                />
+                            </aside>
+                            <main class="pe-2">
+                                <div class="mb-1">
+                                    <div class="mb-0 h5">
+                                        <field name="name"/>
+                                    </div>
+                                    <small t-if="record.technical_name.value">[<field name="technical_name"/>]</small>
+                                    <div name="tags"/>
+                                    <ul class="list-unstyled mb-0">
+                                        <li>Category: <field name="categ_id"/></li>
+                                    </ul>
+                                    <div name="tags"/>
+                                </div>
+                            </main>
+                            
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="saas_module_search_view" model="ir.ui.view">
+            <field name="name">saas.module.search</field>
+            <field name="model">saas.module</field>
+            <field name="arch" type="xml">
+                <search string="Module">
+                    <field name="name" string="Module" filter_domain="['|',('name','ilike',self),('technical_name','ilike',self)]"/>
+                    <field name="categ_id" filter_domain="[('categ_id', 'child_of', raw_value)]"/>
+                    <separator/>
+                    <filter name="archived" string="Archived" domain="[('active', '=', False)]" />
+                </search>
+            </field>
+        </record>
+
+        <record id="saas_module_form_view" model="ir.ui.view">
+            <field name="name">saas.module.form.view</field>
+            <field name="model">saas.module</field>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <form string="Module">
+                    <sheet>
+                        <field name="image" widget="image" class="oe_avatar"/>
+                        <div class="oe_title">
+                            <label class="oe_edit_only" for="name" string="Module Name"/>
+                            <h1><field name="name" placeholder="Module Name"/></h1>
+                        </div>
+                        <group name="first" col="2">
+                            <field name="technical_name" class="oe_inline"/>
+                            <field name="description" />
+                            <field name="categ_id" class="oe_inline"/>
+                        </group>
+                        <field name="active" invisible="1" />
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="saas_module_action" model="ir.actions.act_window">
+            <field name="name">Modules</field>
+            <field name="path">saas-modules</field>
+            <field name="res_model">saas.module</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="view_id" ref="saas_module_kanban_view"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create your first SaaS module
+                </p>
+                <p>
+                    Define the modules linked to your SaaS plans. <br />
+                    Customers will purchase contracts for those selected modules.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Saas Plans Snippets -->
+        <template id="saas_plans_data" name="Saas Plans Snippet">
+            <section id="saas_plans" class="pt16">
+                <div class="container-fluid pb-3">
+                    <div class="section-title text-center">
+                        <h2>SaaS Plans</h2>
+                    </div>
+                    <div class="saas_plans" t-nocache="saas_plans" style="background-color: transparent !important;">
+    
+                    </div>
+                </div>
+            </section>
+        </template>
+    
+    
+        <template id="saas_pricing_plans" name="Our Saas Plans">
+            <div class="plans_div" t-ignore="True">
+                <t t-set="ent_versions" t-value="saas_odoo_version.filtered(lambda x: x.is_enterprise == True and x.state=='confirm')"/>
+                <div class="container-fluid" >
+                    <div class="row" t-ignore="True">
+                        <div class="col-md-4">
+                            
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <t t-if="plans.filtered(lambda x: x.odoo_version_code in ent_versions.mapped('code'))">
+                                <div class="btn-group mt-2" role="group" aria-label="SaaS Plans Buttons">
+                                    
+                                    <input type="radio" class="btn-check" name="btnradio" id="community_btn" autocomplete="off" checked="checked" />
+                                    <label class="btn btn-outline-primary" for="community_btn">Community</label>
+                                    
+                                    <input type="radio" class="btn-check" name="btnradio" id="enterprise_btn" autocomplete="off" />
+                                    <label class="btn btn-outline-primary" for="enterprise_btn">Enterprise</label>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            
+                            <!-- Community Version Buttons -->
+                            <t t-set="community_version" t-value="saas_odoo_version.filtered(lambda x: x.is_enterprise == False)" />
+                            <div t-if="community_version" class="btn_div_lg dd_element_body upper_version_div mx-auto mt-2 border-0 community_buttons_div" >
+                                <div class="dropdown_menu_items">
+                                    <button class="btn dropdown-toggle btn-secondary btn-md def_community_version_btn" type="button" id="dropdownmenu2" t-att-data-code="community_version[0].code" t-att-data-id="community_version[0].id" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <t t-esc="community_version[0].name" />
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownmenu2">
+                                        <t t-foreach="community_version" t-as="version">
+                                            <button class="dropdown-item btn-md community_version_button" t-att-data-code="version.code" t-att-data-id="version.id" type="button">
+                                            <t t-esc="version.name" />
+                                            </button>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Enterprise Versions Buttons -->
+                            <t t-set="enterprise_version" t-value="saas_odoo_version.filtered(lambda x: x.is_enterprise == True and x.state=='confirm')" />
+                            <div t-if="enterprise_version" class="btn_div_lg dd_element_body upper_version_div mx-auto mt-2 border-0 enterprise_buttons_div" style="display:none;">
+                                <div class="dropdown_menu_items">
+                                    <button class="btn dropdown-toggle btn-secondary btn-md def_enterprise_version_btn" type="button" id="dropdownmenu2" t-att-data-id="enterprise_version[0].id" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <t t-esc="enterprise_version[0].name" />
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownmenu2">
+                                        <t t-foreach="enterprise_version" t-as="version">
+                                            <button class="dropdown-item btn-md enterprise_version_button" t-att-data-id="version.id" type="button">
+                                            <t t-esc="version.name" />
+                                            </button>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="container saas_plans_container" t-ignore="True">
+                        <section class="pb32 pt8">
+                            <div id="community_plans">
+                                <div class="community_plans_card">
+                                </div>
+                            </div>
+            
+                            <div id="enterprise_plans" style="display:none;">
+                                <div class="enterprise_plans_card">
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+
+        <template id="saas_plans_cards" name="Saas Plan Cards">
+            <section id="saas_plan_div" class="pt24">
+                <t t-if="plans">
+                    <div class="navBtnDiv d-none d-lg-block" t-ignore="True">
+                        <button type="button" role="presentation" class="customPrevBtn btn">
+                            <span aria-label="Previous" >
+                                <i class="fa fa-chevron-left" aria-hidden="false"></i>
+                            </span>
+                        </button>
+                        <button type="button" role="presentation" class="customNextBtn btn">
+                            <span aria-label="Next">
+                                <i class="fa fa-chevron-right" aria-hidden="false"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="row text-center justify-content-center owl-carousel owl-theme owl-loaded" t-ignore="True">
+                        <t t-foreach="plans" t-as="plan">
+                            <div class="col-11 d-flex align-items-stretch mx-auto">
+                                <div class="pricing_design plan_card">
+                                    <div class="single-pricing d-flex flex-column">
+                                        <div class="price-head">		
+                                            <h2><t t-out="plan.name"/></h2>
+                                            <h1><t t-out="plan.product_template_ids[0].currency_id.symbol if plan.product_template_ids else env.user.company_id.currency_id.symbol"/><t t-out="plan.product_template_ids[0].list_price if plan.product_template_ids else '0.0'"/></h1>
+                                            <span>/Monthly</span>
+                                        </div>
+                                        <p class="text-center my-2 text-muted summary_box">
+                                            <t t-out="plan.summary"/>
+                                        </p>
+                                        <ul class="my-2">
+                                            <t t-set="qty" t-value="5"/>
+                                            <t t-foreach="range(qty)" t-as="item">
+                                                <li><t t-out="plan.saas_module_ids[item].name if item &lt; len(plan.saas_module_ids) else '-'"/></li>
+                                            </t>
+                                        </ul>
+                                        <div class="pricing-price">
+                                            
+                                        </div>
+                                        <a t-att-href="plan.product_template_ids[0].website_url if plan.product_template_ids else '/contactus'" class="price_btn text-decoration-none align-self-end mt-auto">
+                                            <t t-if="plan.product_template_ids">
+                                                Order Now
+                                            </t>
+                                            <t t-else="">
+                                                Contact Us
+                                            </t>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <t t-else="">
+                    <p class="text-center"><t t-esc="message"/></p>
+                </t>
+            </section>
+        </template>
+
+        <template id="saas_common_website_snippets" inherit_id="website.snippets" name="Saas Common Website Snippets Entry">
+            <xpath expr="//t[@id='default_snippets']//snippets[@id='snippet_groups']" position="inside">
+                <t snippet-group="saas" string="Saas Kit Plans Snippets" t-snippet="website.s_snippet_group" t-thumbnail="/saas_kit_custom_plans/static/src/img/saas_plans.png"/>
+            </xpath>
+
+            <xpath expr="//t[@id='default_snippets']//snippets[@id='snippet_structure']" position="inside">
+                <t group="saas" string="Saas Kit Plans Snippets" t-snippet="saas_kit_custom_plans.saas_plans_data">
+                    <keywords>saas, plans, custom plans, buy</keywords>
+                </t>
+            </xpath>
+        </template>
+        
+    </data>
+</odoo>

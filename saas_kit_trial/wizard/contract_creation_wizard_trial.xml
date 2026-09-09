@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : <https://store.webkul.com/license.html/> -->
+
+<odoo>
+    <data>
+        <record id="contract_creation_wizard_inherited_view" model="ir.ui.view">
+            <field name="name">contract.creation.wizard.inherit.form.saas</field>
+            <field name="model">saas.contract.creation</field>
+            <field name="inherit_id" ref="odoo_saas_kit.contract_creation_wizard_view" />
+            <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_product_id']" position="after">
+                <field name="trial_invoice_product" invisible="trial_period == 0" 
+                readonly="True"
+                />
+            </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

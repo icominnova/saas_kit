@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : <https://store.webkul.com/license.html/> -->
+
+<odoo>
+    <record id="backup_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.setting.inherit.form.saas.backup</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval='20'/>
+        <field name="inherit_id" ref="odoo_saas_kit.res_config_settings_inheri_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='odoo_saas_kit']" position="inside">
+                <block title="Default Configuration for Saas Kit Backup" id="saas_kit_backup_config" class="saas_kit_backup_setting_block" name="saas_kit_backup_setting_container"> 
+                    <setting class="col-12" string="Enable Retention" help="After enabling Drop Database backup you need to set backup retention count.">
+                        <field name="enable_retention"/>
+                        <div class="content-group" invisible="not enable_retention">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div>
+                                        <label for="backup_retention_count" string="Default Backup Retention Count" class="o_light_label"/>
+                                        <field class="oe_inline ms-2" name="backup_retention_count" required="1"/>
+                                    </div>
+                                    <div class="text-muted">
+                                        The Backup Retention Count is the number of backups you wish to keep.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

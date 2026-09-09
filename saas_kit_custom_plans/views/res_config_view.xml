@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : <https://store.webkul.com/license.html/> -->
+
+<odoo>
+    <record id="res_config_settings_inheri_view_form" model="ir.ui.view">
+        <field name="name">res.config.setting.inherit.form.custom.plan</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval='21'/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+
+                <app string="Custom Plan Page" data-string="Custom Plan Page" name="saas_kit_custom_plans" groups="odoo_saas_kit.group_saas_manager" >
+                    <block title="Configuration for Custom Plan Page" class="saas_kit_custom_plans_setting_block" name="saas_kit__custom_plans_setting_container">
+                        <setting class = "col-12" id="custom_plan_is_odoo_version" string="Provide Version Selection" help="Provide Odoo version selection feature to customer">
+                            <field name="is_odoo_version"/>
+                        </setting>
+
+                        <setting class = "col-12" id="custom_plan_o_setting_left_pane" string="Select apps view">
+                            <div class="mt8 ">
+                                <field name="apps_view" class="o_light_label" widget="radio" required="True"/>
+                            </div>
+                        </setting>
+
+                        <setting class = "col-12" id="custom_plan_is_users" string="Provide User Selection" help="Provide user selection feature to customer">
+                            <field name="is_users"/>
+
+                            <div class="content-group" invisible="(not is_users)">
+                                <div class="row">
+                                    <div class="col-md-12" id="custom_plan_user_cost">
+                                        <label for="user_cost" class="o_light_label" />
+                                        <field class="oe_inline ms-2" name="user_cost"/>
+                                        <span class="oe_inline text-muted ms-2">
+                                            /Month
+                                        </span>
+                                    </div>
+
+                                    <div class="col-md-12 mt-3" id="custom_plan_max_users">
+                                        <label for="max_users" class="o_light_label" />
+                                        <field class="oe_inline ms-2" name="max_users"/>
+                                        <div class="text-muted">
+                                            Limit to purchase users, -1 shows customer can purchase unlimited users
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </setting>
+                    
+                    <setting class = "col-12" id="custom_plan_addons_path" help="This Path should exist on every Saas Server.">
+                        <div class="oe_inline">
+                            <div class="content-group" >
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label for="addons_path" />
+                                        <field class="oe_inline ms-2" name="addons_path" required="1"/>
+                                    </div>
+                                </div>
+                            </div>  
+                        </div>
+                    </setting>
+
+                        <setting class = "col-12" invisible="(not is_users)" id="custom_plan_is_free_users" string="Provide Free Users" help="Enable to provide Free users to your customer">
+                            <field name="is_free_users"/>
+
+                            <div class="content-group" invisible="(not is_free_users) or (not is_users)">
+                                <div class="row">
+                                    <div class="col-md-12" id="custom_plan_free_users_count">
+                                        <label for="free_users" class="o_light_label"/>
+                                        <field class="oe_inline ms-2" name="free_users"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </setting>
+
+
+                        <setting class = "col-12" id="provide_discount" string="Provide Discount" help="Provide discount on Annual Billing" >
+                            <field name="annual_discount"/>
+                            <div class="content-group" invisible="(not annual_discount)">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label for="discount_percent" class="o_light_label" />
+                                        <field class="oe_inline ms-2" name="discount_percent"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </setting>
+
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="saas_config_inherit_form" model="ir.ui.view">
+        <field name="name">Saas config Inherit</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="odoo_saas_kit.res_config_settings_inheri_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//setting[@id='saas_kit_renew_mail']" position="before">
+                <setting class="col-12" id="enable_contract_expiry" string="Enable Contract Expiry Warning" help="Click to Enable/Disable Warning">
+                    <field name="is_reminder_period"/>
+                    
+                    <div class="row mt-2" invisible="(not is_reminder_period)">
+                        <div class="col-md-12">
+                            <div>
+                                <label for="reminder_period" string="Expiry Warning starts before (days)" class="o_light_label"/>
+                                <field class="oe_inline ms-2" name="reminder_period" required="1"/>
+                            </div>
+                            <div>
+                                <div class="text-muted">
+                                    Contract Expiry mails will sent to Customer before mentioned days of contract expiration.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </setting>
+
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="saas_trial_conversion_wizard_form" model="ir.ui.view">
+        <field name="name">saas.trial.conversion.wizard.form</field>
+        <field name="model">saas.trial.conversion</field>
+        <field name="arch" type="xml">
+            <form string="Saas Trial Conversion Wizard">
+                <sheet>
+                    <div class="row">
+                        <div class="col-4">
+                            <group>
+                                <field name="contract_id" readonly="1" invisible="1" />
+                                <field name="convert_type" widget="radio" />
+                            </group>
+                        </div>
+
+                        <div class="col-8 border-start ps-2">
+                            <span invisible="convert_type != 'same_instance'">
+                                <h6>Same Instance</h6>
+                                Use the same instance of the SaaS trial. (The trial instance will be converted into a private, unique and secure instance accessible only by you).
+                            </span>
+        
+                            <span invisible="convert_type != 'new_instance'">
+                                <h6>New Instance</h6>
+                                Create A completely fresh Odoo SaaS Instance from Start.
+                            </span>
+                        </div>
+                    </div>
+                </sheet>
+                <footer class="d-flex justify-content-end">
+                    <button string="Cancel" class="btn btn-secondary" special="cancel" />
+                    <button string="Continue" class="btn btn-primary" type="object" name="convert_trial_contract" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

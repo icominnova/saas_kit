@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : <https://store.webkul.com/license.html/> -->
+
+<odoo>
+    <data>
+        <record id="odoo_version_form_view" model="ir.ui.view">
+            <field name="name">odoo.version.form.view</field>
+            <field name="model">saas.odoo.version</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="create_db_template" string="Create DB Template" type="object" class="oe_highlight" invisible="(state != 'open')" />
+                        <field name="state" widget="statusbar" />
+                        <button name="login_to_template" string="Login" type="object" icon="fa-sign-in" invisible="(state != 'confirm')" />
+                        <button string="Drop DB" name="%(saas_kit_custom_plans.action_drop_odoo_version_db_wizard)d" type="action" icon="fa-trash" class="oe_highlight" invisible="(state != 'cancel') or (is_drop_db)"/>
+                        <button string="Cancel" name="cancel_odoo_version" type="object" class="btn btn-secondary" invisible="(state == 'cancel')"/>
+                    </header>
+                    <sheet>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <group name="inner_1">
+                                    <field name="name" required="1"/>
+                                    <field name="version_code" required="1" readonly="state!='open'" options="{'no_open': True, 'no_create': True}" widget="selection"/>
+                                    <field name="code" invisible="1" />
+                                    <field name="db_template" />
+                                    <field name="common_addons_path" invisible="1" />
+                                    <field name="is_multi_server" />
+                                    <field name="product_id" required="1" />
+                                    <field name="use_specific_user_template" invisible="(state != 'confirm')"/>
+                                    <field name="restrict_app_list" invisible="(state != 'open')"/>
+                                    <field name="template_user_id" invisible="(not use_specific_user_template)" required="(use_specific_user_template)"/>
+                                    <field name="is_template_created" invisible="1"/>
+                                    <field name="is_drop_db" invisible="1"/>
+                                </group>
+                            </div>
+                            <div class="col-md-6">
+                                <group name="inner_2">
+                                    <field name="is_enterprise" invisible="state != 'open' and not is_enterprise" readonly="state != 'open'"/>
+                                    <field name="path_verified" invisible="1" />
+                                    <label for="enterprise_addons_path" invisible="not is_enterprise"/>
+                                    <div>
+                                        <field name="enterprise_addons_path" class="oe_inline" invisible="not is_enterprise" readonly="state != 'open'" required="is_enterprise" />
+                                        <br/>
+                                        <button string="Verify Addons Path" name="check_enterprise_addons_path" type="object" class="oe_highlight oe_inline" invisible="not is_enterprise or path_verified"/>
+                                    </div>
+                                </group>
+                                <div invisible="not is_enterprise" class="text-break mt-3">
+                                    <p class="text-danger fw-bold">Note :<br />
+                                        1. Only odoo and official odoo partners are allowed to sell the odoo enterprise instances further.<br/>
+                                        2. The client should have an enterprise license key for every saas client using the enterprise odoo instance.<br/>
+                                        3. Enter your Odoo Enterprise Subscription code, once your client launches their odoo -
+                                        <a href="https://www.odoo.com/documentation/19.0/_images/enterprise_code.png" target="new"> https://www.odoo.com/documentation/19.0/_images/enterprise_code.png</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <notebook>
+                            <page string="Remote Servers" name="remote_servers" invisible="(not is_multi_server)">
+                                <group>
+                                    <group>
+                                        <field name="default_saas_servers_ids" widget="Many2many_tags" required="(is_multi_server)">
+                                            <list editable="bottom">
+                                                <field name="server_id" required="1" options="{'no_create': True, 'no_create_edit':True}"/>
+                                                <field name="priority" />
+                                            </list>
+                                        </field>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="odoo_version_list_view" model="ir.ui.view">
+            <field name="name">odoo.version.list.view</field>
+            <field name="model">saas.odoo.version</field>
+            <field name="type">list</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name" decoration-info="state == 'open'" decoration-success="state =='confirm'" decoration-bf="state !='cancel'" />
+                    <field name="code" decoration-info="state == 'open'" decoration-success="state =='confirm'" decoration-bf="state !='cancel'" />
+                    <field name="state" widget="badge" decoration-info="state == 'open'" decoration-success="state =='confirm'" decoration-bf="state !='cancel'" />
+                </list>
+            </field>
+        </record>
+
+        <record id="odoo_version_action_view" model="ir.actions.act_window">
+            <field name="name">Odoo Version</field>
+            <field name="path">saas-odoo-version</field>
+            <field name="res_model">saas.odoo.version</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="odoo_version_list_view" />
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create your first SaaS Odoo Version
+                </p>
+                <p>Create and manage the SaaS Odoo versions you offer to customers.</p>
+            </field>
+        </record>
+    
+    </data>
+</odoo>

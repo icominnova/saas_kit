@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : <https://store.webkul.com/license.html/> -->
+
+<odoo>
+    <data>
+        <record id="backup_process_inherit_form" model="ir.ui.view">
+            <field name="name">Backup Process Form</field>
+            <field name="model">backup.process</field>
+            <field name="inherit_id" ref="wk_backup_restore.backup_process_form_view"/>
+            <field name="arch" type="xml">
+                
+                <xpath expr="//field[@name='frequency_cycle']" position="before">
+                    <field name="backup_instance" widget="radio" options="{'horizontal': true}" readonly="state!= 'draft'" />
+                    <field name="saas_client_id" invisible="backup_instance != 'saas_client'" readonly="state != 'draft'" required="backup_instance == 'saas_client'" />
+                </xpath>
+                
+            </field>
+        </record>
+    </data>
+</odoo>

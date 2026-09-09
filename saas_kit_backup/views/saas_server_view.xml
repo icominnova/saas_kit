@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : <https://store.webkul.com/license.html/> -->
+
+<odoo>
+    <data>
+        <record id="saas_server_inherit_form_view" model="ir.ui.view">
+            <field name="name">Backup Server From View</field>
+            <field name="model">saas.server</field>
+            <field name="inherit_id" ref="odoo_saas_kit.saas_server_form_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//sheet/group/group[3]" position="after">
+                    <group string="Backup Details" name="backup_details">
+                        <field name="backup_location" required="1" />
+                        <field name="remote_server_id" invisible="backup_location != 'remote'" required="backup_location == 'remote'" />
+                        <field name="def_backup_dir" invisible="backup_location != 'remote' or not remote_server_id" required="remote_server_id != False"/>
+                        <field name="backup_sftp_host" invisible="backup_location != 'remote' or not remote_server_id" required="remote_server_id != False" />
+                        <field name="backup_sftp_port" invisible="backup_location != 'remote' or not remote_server_id" required="remote_server_id != False"/>
+                        <field name="backup_sftp_user" password="1" invisible="backup_location != 'remote' or not remote_server_id" required="remote_server_id != False"/>
+                        <label for="backup_sftp_password" invisible="backup_location != 'remote' or not remote_server_id" required="remote_server_id != False" />
+                        <div>
+                            <field name="backup_sftp_password" password="1" invisible="backup_location != 'remote' or not remote_server_id" required="remote_server_id != False" />
+                            <br/>
+                            <button string="Test Connection" name="test_remote_host_connection" type="object" class="oe_highlight" invisible="backup_location != 'remote' or not remote_server_id"/>
+                        </div>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

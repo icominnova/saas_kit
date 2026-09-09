@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : <https://store.webkul.com/license.html/> -->
+
+<odoo>
+    <data>
+        <record id="upload_server_pem_view" model="ir.ui.view">
+            <field name="name">import.server.pem</field>
+            <field name="model">import.server.pem</field>
+            <field name="arch" type="xml">
+                <form string="Upload SaaS Server Pem">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="server_id" invisible='True'/>
+                                <field name="filename" />
+                                <field name="pem_file" />
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string='Upload' name="upload_pem_file" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_upload_server_pem" model="ir.actions.act_window">
+            <field name="name">Upload SaaS Server Pem</field>
+            <field name="res_model">import.server.pem</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="upload_server_pem_view"/>
+            <field name="context">{'default_server_id': active_id}</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

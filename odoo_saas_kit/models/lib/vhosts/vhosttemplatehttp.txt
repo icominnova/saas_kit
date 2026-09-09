@@ -1,0 +1,64 @@
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  ''      close;
+}
+
+server {
+  listen 80;
+  server_name DOMAIN_TO_BE_REPLACED;
+
+#################---Proxy Setting for Odoo backend-----------#################################
+ proxy_read_timeout 720s;
+ proxy_connect_timeout 720s;
+ proxy_send_timeout 720s;
+
+ # Add Headers for odoo proxy mode
+ proxy_set_header X-Forwarded-Host $http_host;
+ proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+ proxy_set_header X-Forwarded-Proto $scheme;
+ proxy_set_header X-Real-IP $remote_addr;
+
+###############------Log----------------------################################################
+ access_log /var/log/nginx/DOMAIN_TO_BE_REPLACED.access.log;
+ error_log /var/log/nginx/DOMAIN_TO_BE_REPLACED.error.log;
+ client_body_in_file_only on;
+ # Redirect longpoll requests to odoo longpolling port
+ location ^~ /.well-known/acme-challenge/ {
+    default_type "text/plain";
+}
+
+
+ # Redirect websocket/longpoll requests to odoo gevent/longpolling port
+ location /websocket {
+    proxy_pass http://LONG_BACKEND_TO_BE_REPLACED;  #WEBSOCKETBACKEND
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    proxy_set_header X-Forwarded-Host $http_host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Real-IP $remote_addr;
+
+    #add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+    #proxy_cookie_flags session_id samesite=lax secure;  # requires nginx 1.19.8
+ }
+
+
+  # Redirect requests to odoo backend server
+  location / {
+    # Add Headers for odoo proxy mode
+    proxy_set_header X-Forwarded-Host $http_host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_redirect off;
+    proxy_pass http://BACKEND_TO_BE_REPLACED;    #ODOOBACKEND
+
+    #add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+    #proxy_cookie_flags session_id samesite=lax secure;  # requires nginx 1.19.8
+    }
+
+  # common gzip
+  gzip_types text/css text/scss text/less text/plain text/xml application/xml application/json application/javascript;
+  gzip on;
+}
+

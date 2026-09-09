@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : <https://store.webkul.com/license.html/> -->
+
+<odoo>
+    <data>
+        <template id="contract_portal_page_inherit" inherit_id="odoo_saas_kit.portal_contract_page">
+            <xpath expr="//div[@id='contract_page_sub_links']" position="inside">
+		        <t t-if="contract.state == 'confirm'">
+		            <button id="show_backup_details_in_cont" class="nav-link" data-bs-toggle="tab" data-bs-target="#backup_details" role="tab" aria-controls="backup_details" aria-selected="false">Backup</button>
+		        </t>
+            </xpath>
+
+            <xpath expr="//div[@id='nav-tabContent']" position="inside">
+                <div class="tab-pane fade" id="backup_details" role="tabpanel" aria-labelledby="backup-details-tab">
+                    <div class="backup_process_main">
+                        <div class="modal fade" id="create_backup_process_model">
+                            <div class="modal-dialog modal-md">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Enter Backup Process Details
+                                        </h4>
+                                    </div>
+                                    <div class="modal-body oe_dark">
+                                            <div class="d-flex" style="padding-top: 2%; padding-left: 3%; font-family: 'Roboto', 'Odoo Unicode Support Noto', sans-serif; font-size: 18px;">
+                                                <span style="padding-left: 5%; padding-right: 2%; display:inline;">Backup Frequency </span>
+                                                <div class="btn_div_lg dd_element_body upper_div" id="backup_freq_cycle_button">
+                                                    <div class="dropdown_menu_items">
+                                                        <button class="btn dropdown-toggle btn-md btn2" type="button" id="btn_frq_cycle_drpdwn" t-att-data-code="'daily'" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            Daily
+                                                        </button>
+                                                        <div class="dropdown-menu" aria-labelledby="dropdownmenu">
+                                                            <button class="dropdown-item btn-md fre_cyc_button" t-att-data-code="'half_day'" type="button">Twice a Day</button>
+                                                            <button class="dropdown-item btn-md fre_cyc_button" t-att-data-code="'daily'" type="button">Daily</button>
+                                                            <button class="dropdown-item btn-md fre_cyc_button" t-att-data-code="'weekly'" type="button">Weekly</button>
+                                                            <button class="dropdown-item btn-md fre_cyc_button" t-att-data-code="'monthly'" type="button">Monthly</button>
+                                                            <button class="dropdown-item btn-md fre_cyc_button" t-att-data-code="'yearly'" type="button">Yearly</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex" style="padding-top: 4%; padding-left: 3%; font-family: 'Roboto', 'Odoo Unicode Support Noto', sans-serif; font-size: 18px;">
+                                                <span style="padding-left: 5%; padding-right: 2%; display:inline;">Backup Starting Date and Time :  </span>
+                                                <input id="date_time_input" type="datetime-local"/>
+                                            </div>
+        
+                                            <div class="d-flex" t-if="enable_retention" style="padding-top: 4%; padding-left: 3%; font-family: 'Roboto', 'Odoo Unicode Support Noto', sans-serif; font-size: 18px;">
+                                                <span class="form-check-label" style="padding-left: 5%; padding-right: 2%;">Enable Retention :  </span>
+                                                <input class="form-check-input" type="checkbox" id="enable_retention" disabled="1" t-att-checked="enable_retention"/>
+                                            </div>
+        
+                                            <div class="row mb-3" t-if="enable_retention" id="retention_div" style="padding-top: 4%; padding-left: 5%; font-family: 'Roboto', 'Odoo Unicode Support Noto', sans-serif; font-size: 18px;">
+                                                <label for="retention_count" class="col-sm-5 col-form-label" style="padding-left: 5%; padding-right: 2%;">Backup Retention Count :</label>
+                                                <div class="col-sm-4">
+                                                    <span class="form-control" id="retention_count" readonly="1">
+                                                        <t t-out="backup_retention_count"/>
+                                                    </span>
+                                                </div>
+        
+                                                <div class="text-muted" style="padding-left: 5%;font-size:1rem;">
+                                                    <strong>Note:</strong> 
+                                                    <ul>
+                                                        <li>Database Backup Retention is enabled by Admin.</li>
+                                                        <li>The Backup Retention Count is the number of backups that will be kept/retained.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn mr-auto" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="button" t-att-value="contract.saas_client.id" class="btn btn" style="background-color:#304FE0; color: #FFFFFF !important;" id="create_process_button">Submit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <t t-if="backup_process">
+                            <div class="d-flex justify-content-center border-bottom py-3">
+                                <div class="col-md-4">
+                                    <div>
+                                        <div class="d-flex" id="portal_backup_state">
+                                            <div><span style="opacity: 0.5;">Current Status: </span><t t-if="backup_process.state == 'cancel'">Process Cancelled</t><t t-else=""><t t-if="backup_process.state == 'draft'">Process Created</t><t t-else="">Process Running</t></t></div>
+                                        </div>
+                                        <div class="d-flex" id="portal_backup_detail">
+                                            <div><span style="opacity: 0.5;">Backup Frequency: </span><t t-if="backup_process.frequency_cycle == 'half_day'" >Twice a Day</t><t t-else=""><t t-if="backup_process.frequency_cycle == 'daily'">Daily</t><t t-else=""><t t-if="backup_process.frequency_cycle == 'weekly'">Weekly</t><t t-else=""><t t-if="backup_process.frequency_cycle == 'monthly'">Monthly</t><t t-else="">Yearly</t></t></t></t></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 mt-1">
+                                    <t t-if="backup_process.state == 'cancel'">
+                                        <div class="row">
+                                            <div class="col-12 text-center">
+                                                <button type="button" id ="create_backup_process" class="btn btn-primary mx-auto">Create Backup Process</button>
+                                            </div>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="row">
+                                            <div class="col-6 text-center">
+                                                <button type="button" id ="update_backup_process" t-att-value="contract.saas_client.id" class="btn mx-auto">Update Backup Process</button>                                                    
+                                            </div>
+                                            <div class="col-6 text-center">
+                                                <button type="button" id ="cancel_backup_process" t-att-value="contract.saas_client.id" class="btn btn-primary mx-auto">Cancel Backup Process</button>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                            
+
+                            <div id="backup_table_div">
+                                <t t-if="backup_process and backup_process.backup_details_ids">
+                                    <table id="backup_table" class="table table-striped mt-3" >
+                                        <thead id="backup_thead">
+                                            <tr id="backup_thead_row">
+                                                <td id="backup_thead_time" class="backup_head_label">
+                                                    TIME
+                                                </td>
+                                                <td id="backup_thead_name" class="backup_head_label">
+                                                    NAME
+                                                </td>
+                                                <td id="backup_thead_status" class="backup_head_label">
+                                                    STATUS
+                                                </td>
+                                                <td id="backup_thead_action" class="backup_head_label">
+                                                    ACTION
+                                                </td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="backup_process.backup_details_ids" t-as="detail">
+                                                <tr class="tbody_row">
+                                                    <td>
+                                                        <span class="date_text"><t t-esc="detail.backup_date_time" /></span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="name_text"><t t-esc="detail.name" /></span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="status_text"><t t-esc="detail.status" /></span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="action_div" t-if="detail.status=='Success' or detail.backup_location not in ['local', 'remote']">
+                                                            <button class="download" t-att-detail_id="detail.id" t-att-client_id="contract.saas_client.id">Download</button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </t>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div id="no_backup_img_div" class="d-flex">
+                                <div id="no_backup_div" class="d-flex">
+                                    <img src="/saas_kit_backup/static/src/img/icon-backup.svg"></img>                                                            
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex" id="no_backup_text_1">
+                                    <p>
+                                        No Backup Created yet!
+                                    </p>
+                                </div>
+                                <div class="d-flex justify-content-center">
+                                    <div class="col-4 text-center">
+                                        <button type="button" id ="create_backup_process" class="btn btn-primary">Create Backup Process</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>
