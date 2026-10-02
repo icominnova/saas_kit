@@ -269,11 +269,12 @@ class SaaSTrialContract(models.Model):
                 trial_data['trial.purchase_link'] = web_base_url+obj.get_contract_url()
                 _, db_server = obj.server_id.get_server_details()
                 database = obj.saas_client and obj.saas_client.database_name or False
+                was_trial_data_enabled = bool(obj.trial_data_enabled)
                 response = query.set_trial_data(database, trial_data, db_server=db_server)
                 if response.get('status'):
                     obj.trial_data_enabled = True
                     self.env.cr.commit()
-                    if not obj.is_trial_enabled:
+                    if not obj.is_trial_enabled and not was_trial_data_enabled:
                         try:
                             obj.saas_client.restart_client()
                         except:
