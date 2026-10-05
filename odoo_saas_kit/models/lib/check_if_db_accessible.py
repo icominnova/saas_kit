@@ -40,7 +40,13 @@ def isdbaccessible(host_server, db_server, config_path=None):
     res = check_connectivity.ishostaccessible(host_server)
     if not res.get('status'):
         return res
-    _logger.info("Received Request %r"%locals())
+    _logger.info(
+        "DB accessibility check: host_type=%s db_type=%s db_host=%s db_port=%s",
+        host_server.get("server_type"),
+        db_server.get("server_type"),
+        db_server.get("host"),
+        db_server.get("port"),
+    )
     details = db_server
     try:
         psycopg2.connect(

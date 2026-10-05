@@ -201,8 +201,8 @@ def main(domain, port, host_server, config_path, container_id=None, db_server=No
     _logger.info("____%r++++++"%domain)
     _logger.info("____%r++++++"%container_id)
     _logger.info("____%r++++++"%port)
-    _logger.info("____%r++++++"%host_server)
-    _logger.info("____%r++++++"%db_server)
+    _logger.info("SaaS host server context received; credentials redacted")
+    _logger.info("SaaS database server context received; credentials redacted")
     global oversion
     oversion = version.split('.')[0]
     response = {"db_drop":False,"drop_container": False,'delete_data_dir':False,'delete_nginx_vhost':False }
@@ -242,7 +242,7 @@ def main_plan(domain , host_server = None,  config_path = None):
 
     server_type = host_server['server_type']
     _logger.info("____%r++++++"%domain)
-    _logger.info("____%r++++++"%host_server)
+    _logger.info("SaaS host server context received; credentials redacted")
 
     response = {"db_drop":False}
     res = update_values(config_path)

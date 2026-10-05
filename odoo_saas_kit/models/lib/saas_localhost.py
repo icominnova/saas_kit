@@ -240,9 +240,9 @@ class odoo_container:
                 # self.update_config_paramenter(self.odoo_config+"/"+name+"/odoo-server.conf",'addons_path',value=self.enterprise_addons_path)
                 self.update_config_paramenter(self.odoo_config+"/"+name+"/odoo-server.conf",'addons_path',value="/mnt/enterprise")
                 self.update_config_paramenter(self.odoo_config+"/"+name+"/odoo-server.conf",'server_wide_modules',value="web_enterprise")
-                self.dclient.containers.run(image=self.odoo_image,name=name,detach=True,volumes={extra_path:{'bind':self.data_dir,"mode":"rw"}, path: {'bind': "/etc/odoo/", 'mode': 'rw'},self.common_addons:{'bind': "/mnt/extra-addons", 'mode': 'rw'}, enterprise_addons_path:{'bind': "/mnt/enterprise", 'mode': 'rw'}},ports={8069:port, 8071:lport},tty=True,restart_policy={"Name":"unless-stopped"}) #Start the container
+                self.dclient.containers.run(image=self.odoo_image,name=name,detach=True,volumes={extra_path:{'bind':self.data_dir,"mode":"rw"}, path: {'bind': "/etc/odoo/", 'mode': 'rw'},self.common_addons:{'bind': "/mnt/extra-addons", 'mode': 'rw'}, enterprise_addons_path:{'bind': "/mnt/enterprise", 'mode': 'rw'}},ports={8069:('127.0.0.1', port), 8071:('127.0.0.1', lport)},tty=True,nano_cpus=1000000000,mem_limit="1200m",memswap_limit="2g",restart_policy={"Name":"unless-stopped"}) #Start the container
             else:
-                self.dclient.containers.run(image=self.odoo_image,name=name,detach=True,volumes={extra_path:{'bind':self.data_dir,"mode":"rw"}, path: {'bind': "/etc/odoo/", 'mode': 'rw'},self.common_addons:{'bind': "/mnt/extra-addons", 'mode': 'rw'}},ports={8069:port, 8071:lport},tty=True,restart_policy={"Name":"unless-stopped"}) #Start the container
+                self.dclient.containers.run(image=self.odoo_image,name=name,detach=True,volumes={extra_path:{'bind':self.data_dir,"mode":"rw"}, path: {'bind': "/etc/odoo/", 'mode': 'rw'},self.common_addons:{'bind': "/mnt/extra-addons", 'mode': 'rw'}},ports={8069:('127.0.0.1', port), 8071:('127.0.0.1', lport)},tty=True,nano_cpus=1000000000,mem_limit="1200m",memswap_limit="2g",restart_policy={"Name":"unless-stopped"}) #Start the container
             _logger.info("Let's give Odoo 2s")
             time.sleep(2)
             self.response['container_id'] = self.response['name']
@@ -250,7 +250,7 @@ class odoo_container:
             return { "port" : port, "longport" : lport }
         except (docker.errors.ContainerError, docker.errors.ImageNotFound, docker.errors.APIError, Exception) as e:
             _logger.info("Odoo container with name %s couldn't be started. Error: %s"%(name,e))
-            self.remove_container(self.dclient.containers.get(self.response['name']).id)  #Deleting the container that just got created but something seemingly went wrong with it.
+            self.remove_container(name)  #Deleting the container that just got created but something seemingly went wrong with it.
         return False
 
     def add_config_paramenter(self,file_path,value):
@@ -267,9 +267,21 @@ class odoo_container:
         try:
             value = value.replace(self.common_addons,'/mnt/extra-addons')    
             config.read(file_path)
-            param_val = config.get('options', parameter) # Get Parameter
-            new_value = param_val+','+value #Update the parameter
-            config.set('options', parameter, new_value) # Write the changes to the file            
+            param_val = config.get('options', parameter, fallback='')
+            current_values = [
+                item.strip()
+                for item in param_val.split(',')
+                if item.strip()
+            ]
+            new_values = [
+                item.strip()
+                for item in value.split(',')
+                if item.strip()
+            ]
+            for item in new_values:
+                if item not in current_values:
+                    current_values.append(item)
+            config.set('options', parameter, ','.join(current_values))
             with open(file_path, 'w') as configfile:
                 config.write(configfile)
         except Exception as e:
@@ -295,7 +307,7 @@ class odoo_container:
 
     def check_if_db_exists(self,url,db):
         _logger.info("Checking if DB already exists")
-        _logger.info(locals())
+        _logger.info("SaaS localhost operation invoked; sensitive context redacted")
         sock_db = xmlrpc.client.ServerProxy('{}/xmlrpc/2/db'.format(url))
         if db in sock_db.list():
             return True
@@ -392,7 +404,7 @@ def create_db_template(db_template=None,modules=None, config_path=None,host_serv
     '''
     Method to launch Template container and DB
     '''
-    _logger.info(locals())
+    _logger.info("SaaS localhost operation invoked; sensitive context redacted")
 
     response = {}
     if version not in SAAS_ODOO_VERSIONS:
@@ -431,19 +443,19 @@ def create_db_template(db_template=None,modules=None, config_path=None,host_serv
                 # OdooObject.update_config_paramenter(OdooObject.odoo_config+"/"+OdooObject.odoo_template+"/odoo-server.conf",'addons_path',value=OdooObject.enterprise_addons_path)
                 OdooObject.update_config_paramenter(OdooObject.odoo_config+"/"+OdooObject.odoo_template+"/odoo-server.conf",'addons_path',value="/mnt/enterprise")
                 OdooObject.update_config_paramenter(OdooObject.odoo_config+"/"+OdooObject.odoo_template+"/odoo-server.conf",'server_wide_modules',value="web_enterprise")
-                OdooObject.dclient.containers.run(image = OdooObject.odoo_image, name = OdooObject.odoo_template, detach = True, volumes = {extra_path:{'bind':OdooObject.data_dir,"mode":"rw"}, path: {'bind': "/etc/odoo/", 'mode': 'rw'}, OdooObject.common_addons:{'bind': "/mnt/extra-addons", 'mode': 'rw'}, enterprise_addons_path:{'bind': "/mnt/enterprise", 'mode': 'rw'}}, ports = {8069:OdooObject.template_odoo_port,8071:OdooObject.template_odoo_lport}, tty = True,restart_policy={"Name":"unless-stopped"}) #Start the container
+                OdooObject.dclient.containers.run(image = OdooObject.odoo_image, name = OdooObject.odoo_template, detach = True, volumes = {extra_path:{'bind':OdooObject.data_dir,"mode":"rw"}, path: {'bind': "/etc/odoo/", 'mode': 'rw'}, OdooObject.common_addons:{'bind': "/mnt/extra-addons", 'mode': 'rw'}, enterprise_addons_path:{'bind': "/mnt/enterprise", 'mode': 'rw'}}, ports = {8069:('127.0.0.1', OdooObject.template_odoo_port),8071:('127.0.0.1', OdooObject.template_odoo_lport)}, tty = True,restart_policy={"Name":"unless-stopped"}) #Start the container
             else:
-                OdooObject.dclient.containers.run(image = OdooObject.odoo_image, name = OdooObject.odoo_template, detach = True, volumes = {extra_path:{'bind':OdooObject.data_dir,"mode":"rw"}, path: {'bind': "/etc/odoo/", 'mode': 'rw'}, OdooObject.common_addons:{'bind': "/mnt/extra-addons", 'mode': 'rw'}}, ports = {8069:OdooObject.template_odoo_port,8071:OdooObject.template_odoo_lport}, tty = True,restart_policy={"Name":"unless-stopped"}) #Start the container
+                OdooObject.dclient.containers.run(image = OdooObject.odoo_image, name = OdooObject.odoo_template, detach = True, volumes = {extra_path:{'bind':OdooObject.data_dir,"mode":"rw"}, path: {'bind': "/etc/odoo/", 'mode': 'rw'}, OdooObject.common_addons:{'bind': "/mnt/extra-addons", 'mode': 'rw'}}, ports = {8069:('127.0.0.1', OdooObject.template_odoo_port),8071:('127.0.0.1', OdooObject.template_odoo_lport)}, tty = True,restart_policy={"Name":"unless-stopped"}) #Start the container
             _logger.info("Let's give Odoo 2s")
             time.sleep(2)
 
             NginxVhost = nginx_vhost(sitesAvailable = sitesEnable, sitesEnable = sitesEnable)
-            if NginxVhost.domainmapping(str(host_domain),"localhost:{}".format(str(OdooObject.template_odoo_port)), "localhost:{}".format(str(OdooObject.template_odoo_lport)),revert_websocket):
+            if NginxVhost.domainmapping(str(host_domain),"127.0.0.1:{}".format(str(OdooObject.template_odoo_port)), "127.0.0.1:{}".format(str(OdooObject.template_odoo_lport)),revert_websocket):
                 response['url'] = "http://{}".format(str.lower(host_domain))
         except (docker.errors.ContainerError, docker.errors.ImageNotFound, docker.errors.APIError, Exception) as e:
             _logger.error("Odoo container with name %s couldn't be started. Error: %s"%(OdooObject.odoo_template,e))
 
-            OdooObject.remove_container(OdooObject.dclient.containers.get(OdooObject.odoo_template).id)
+            OdooObject.remove_container(OdooObject.odoo_template)
             response.update({ 'status': False, 'msg': e,})
             return response
 
@@ -467,7 +479,7 @@ def create_db_template(db_template=None,modules=None, config_path=None,host_serv
 
 
 def main(context=None):
-    _logger.info(context)
+    _logger.info("SaaS localhost context received; sensitive values redacted")
 
     status_checks = {"server" : True, "dir" : True, "filestore" : True, "domain_mapping" : True, "db_clone" : True}
 
@@ -535,12 +547,12 @@ def main(context=None):
     _logger.info("-----------MAPPING DOMAIN--------")
 
     NginxVhost = nginx_vhost(sitesAvailable = sitesEnable, sitesEnable = sitesEnable)
-    resp = NginxVhost.domainmapping(str(host_domain),"localhost:{}".format(str(port['port'])),"localhost:{}".format(str(port['longport'])), revert_websocket)
+    resp = NginxVhost.domainmapping(str(host_domain),"127.0.0.1:{}".format(str(port['port'])),"127.0.0.1:{}".format(str(port['longport'])), revert_websocket)
 
     _logger.info("----------MAPPING RESULT--------%r", resp)
 
     if resp:
-        OdooObject.response['url']  = "http://{}".format(str.lower(host_domain))
+        OdooObject.response['url']  = "https://{}".format(str.lower(host_domain))
     else:
         status_checks['domain_mapping'] = False
     OdooObject.response.update(result)
@@ -557,7 +569,7 @@ def rebuild(context=None):
     Params : Context should have all the params to rebuild container like, OdooObject.run_odoo(host_domain, db, conf_odoochat_key, is_enterprise = is_enterprise, enterprise_addons_path = enterprise_addons_path)
     Return : response object containing status of rebuild and related data
     '''
-    _logger.info(context)
+    _logger.info("SaaS localhost context received; sensitive values redacted")
     db = context.get("db_name")
     odoo_version = context.get("version","19.0")
     host_domain = context.get("host_domain")
@@ -600,18 +612,18 @@ def rebuild(context=None):
             OdooObject.response['lport'] = lport
 
         if is_enterprise:
-            OdooObject.dclient.containers.run(image=OdooObject.odoo_image,name=name,detach=True,volumes={extra_path:{'bind':OdooObject.data_dir,"mode":"rw"}, path: {'bind': "/etc/odoo/", 'mode': 'rw'},OdooObject.common_addons:{'bind': "/mnt/extra-addons", 'mode': 'rw'}, enterprise_addons_path:{'bind': "/mnt/enterprise", 'mode': 'rw'}},ports={8069:port, 8071:lport},tty=True,restart_policy={"Name":"unless-stopped"}) #Start the container
-            rebuild_cmd = f"docker run -dp {port}:8069 -p {lport}:8071 -v {extra_path}:{OdooObject.data_dir} -v {path}:/etc/odoo/ -v {OdooObject.common_addons}:/mnt/extra-addons -v {enterprise_addons_path}:/mnt/enterprise --name {name} {OdooObject.odoo_image} --restart=unless-stopped"
+            OdooObject.dclient.containers.run(image=OdooObject.odoo_image,name=name,detach=True,volumes={extra_path:{'bind':OdooObject.data_dir,"mode":"rw"}, path: {'bind': "/etc/odoo/", 'mode': 'rw'},OdooObject.common_addons:{'bind': "/mnt/extra-addons", 'mode': 'rw'}, enterprise_addons_path:{'bind': "/mnt/enterprise", 'mode': 'rw'}},ports={8069:('127.0.0.1', port), 8071:('127.0.0.1', lport)},tty=True,nano_cpus=1000000000,mem_limit="1200m",memswap_limit="2g",restart_policy={"Name":"unless-stopped"}) #Start the container
+            rebuild_cmd = f"docker run -d --cpus=1.0 --memory=1200m --memory-swap=2g --restart=unless-stopped -p 127.0.0.1:{port}:8069 -p 127.0.0.1:{lport}:8071 -v {extra_path}:{OdooObject.data_dir} -v {path}:/etc/odoo/ -v {OdooObject.common_addons}:/mnt/extra-addons -v {enterprise_addons_path}:/mnt/enterprise --name {name} {OdooObject.odoo_image}"
         else:
-            OdooObject.dclient.containers.run(image=OdooObject.odoo_image,name=name,detach=True,volumes={extra_path:{'bind':OdooObject.data_dir,"mode":"rw"}, path: {'bind': "/etc/odoo/", 'mode': 'rw'},OdooObject.common_addons:{'bind': "/mnt/extra-addons", 'mode': 'rw'}},ports={8069:port, 8071:lport},tty=True,restart_policy={"Name":"unless-stopped"}) #Start the container
-            rebuild_cmd = f"docker run -dp {port}:8069 -p {lport}:8071 -v {extra_path}:{OdooObject.data_dir} -v {path}:/etc/odoo/ -v {OdooObject.common_addons}:/mnt/extra-addons --name {name} {OdooObject.odoo_image} --restart=unless-stopped"
+            OdooObject.dclient.containers.run(image=OdooObject.odoo_image,name=name,detach=True,volumes={extra_path:{'bind':OdooObject.data_dir,"mode":"rw"}, path: {'bind': "/etc/odoo/", 'mode': 'rw'},OdooObject.common_addons:{'bind': "/mnt/extra-addons", 'mode': 'rw'}},ports={8069:('127.0.0.1', port), 8071:('127.0.0.1', lport)},tty=True,nano_cpus=1000000000,mem_limit="1200m",memswap_limit="2g",restart_policy={"Name":"unless-stopped"}) #Start the container
+            rebuild_cmd = f"docker run -d --cpus=1.0 --memory=1200m --memory-swap=2g --restart=unless-stopped -p 127.0.0.1:{port}:8069 -p 127.0.0.1:{lport}:8071 -v {extra_path}:{OdooObject.data_dir} -v {path}:/etc/odoo/ -v {OdooObject.common_addons}:/mnt/extra-addons --name {name} {OdooObject.odoo_image}"
         _logger.info("Let's give Odoo 2s")
         time.sleep(2)
         _logger.info("Odoo container with name %s started rebuild. Hit http://localhost:%s"%(name,port))
         OdooObject.response.update({'status':True})
     except (docker.errors.ContainerError, docker.errors.ImageNotFound, docker.errors.APIError, Exception) as e:
         _logger.info("Odoo container with name %s couldn't be started. Error: %s"%(name,e))
-        OdooObject.remove_container(OdooObject.dclient.containers.get(host_domain).id)  #Deleting the container that just got created but something seemingly went wrong with it.
+        OdooObject.remove_container(name)  # Nettoyage robuste après échec
         OdooObject.response.update({'status':False})
         OdooObject.response.update({'rebuild_cmd':rebuild_cmd})
 

@@ -38,7 +38,7 @@ def isdbaccessible(details):
         status=True,
         message='Success'
     )
-    _logger.info("Recieved Request %r"%locals())
+    _logger.info("Connectivity check requested; credentials redacted")
     try:
         psycopg2.connect(
                 dbname="postgres",

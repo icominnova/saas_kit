@@ -449,7 +449,11 @@ class SaasContract(models.Model):
                 )
             data['host_server'] = host_server
             data['db_server'] = db_server
-            _logger.info("------DATAAA-------%r", data)
+            _logger.info(
+                "Updating SaaS user data: database=%s server=%s",
+                data.get("database"),
+                (data.get("db_server") or {}).get("host"),
+            )
             self.print_logs('info', 'calling update_user script', '337')
             response = query.update_user(**data)
             if response.get('status'):

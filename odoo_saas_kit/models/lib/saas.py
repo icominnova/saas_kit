@@ -31,7 +31,7 @@ def isitaccessible(details):
         return False
     
 def create_db_template(db_template = None, modules = None, config_path = None, host_server = None, db_server = None, version = "19.0", is_enterprise = False, enterprise_addons_path = None):
-    _logger.info("Recieved Request %r"%locals())
+    _logger.info("SaaS request received; sensitive context redacted")
     if host_server.get('server_type') == "self":
         _logger.info("On local Server")
         _logger.info("Saas Calling saas_localhost.create_db_template script ")
@@ -47,7 +47,7 @@ def create_db_template(db_template = None, modules = None, config_path = None, h
         return saas_remote.create_db_template(**locals())
 
 def main(context=None):
-    _logger.info("Recieved Request %r"%locals())
+    _logger.info("SaaS request received; sensitive context redacted")
     if context['host_server']['server_type'] == "self":
         _logger.info("On local Server")
         _logger.info("Saas Calling saas_localhost.main script ")
@@ -62,7 +62,7 @@ def main(context=None):
         return saas_remote.main(context)
 
 def rebuild(context=None):
-    _logger.info("Recieved Request %r"%locals())
+    _logger.info("SaaS request received; sensitive context redacted")
     if context['host_server']['server_type'] == "self":
         _logger.info("On local Server")
         _logger.info("Saas Calling saas_localhost.main script ")
