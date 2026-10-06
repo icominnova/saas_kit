@@ -284,7 +284,7 @@ class SaasPlans(models.Model):
                 login_url = "http://db18_templates.{}/saas/login?db={}&login={}&passwd={}".format(obj.saas_base_url,obj.db_template, login, password)
 
 
-                _logger.info("$$$$$$$$$$$$$$%r", login_url)
+                _logger.info("SaaS login URL generated")
                 return {
                     'type': 'ir.actions.act_url',
                     'url': login_url,

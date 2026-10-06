@@ -638,7 +638,17 @@ def main(context=None):
         _logger.info("DEST %r",dest)
 
 #        _logger.info(OdooObject.execute_on_remote_shell(ssh_obj,"cp -r %s %s"%(src,dest)))
-        _logger.info(OdooObject.execute_on_shell("sshpass -p %r rsync -var -e  \"ssh -o StrictHostKeyChecking=no\" %r/ %r@%r:%r"%(context['host_server']['password'],src,context['host_server']['user'],context['host_server']['host'],dest)))
+        OdooObject.execute_on_shell(
+            "sshpass -p %r rsync -var -e  \"ssh -o StrictHostKeyChecking=no\" %r/ %r@%r:%r"
+            % (
+                context["host_server"]["password"],
+                src,
+                context["host_server"]["user"],
+                context["host_server"]["host"],
+                dest,
+            )
+        )
+        _logger.info("Remote SaaS data synchronization completed")
         _logger.info(OdooObject.execute_on_remote_shell(ssh_obj,"chmod -R 777 %s"%dest))    #########----->>> do we really need it
     except OSError as e:
         _logger.info("Filestore couldnot be copied %r",e)

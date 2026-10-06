@@ -151,7 +151,7 @@ class SaasOdooVersion(models.Model):
                 login = response[0][0]
                 password = response[0][1]
                 login_url = "http://db{}_templates.{}/saas/login?db={}&login={}&passwd={}".format(obj.code.split('.')[0],server_id.server_domain,obj.db_template, login, password)
-                _logger.info("$$$$$$$$$$$$$$%r", login_url)
+                _logger.info("SaaS login URL generated")
                 return {
                     'type': 'ir.actions.act_url',
                     'url': login_url,

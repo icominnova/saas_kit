@@ -251,7 +251,10 @@ class SaasClient(models.Model):
                     else:
                         login_url = "{}/saas/login?db={}&login={}&passwd={}".format(obj.client_url, obj.database_name, login, password)
                         # raise UserError("Custom domain doesn't exist for this instance. Please create a custom domain first and try again.")
-                _logger.info("======== login_url ====== %r", login_url)
+                _logger.info(
+                    "Client login URL generated for SaaS client %s",
+                    obj.display_name,
+                )
                 return {
                     'type': 'ir.actions.act_url',
                     'url': login_url,

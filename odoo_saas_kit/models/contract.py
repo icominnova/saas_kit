@@ -771,7 +771,7 @@ class SaasContract(models.Model):
                                 all_characters = string.ascii_letters + string.digits + string.punctuation
                                 temp_password = ''.join(random.choices(all_characters, k=10))
                                 client_id.temp_password = temp_password
-                            _logger.info("--------------%r", token)
+                            _logger.info("SaaS access token generated")
                             obj.sudo().set_user_data(token=token)
                             self.env.cr.commit()
                         except Exception as e:

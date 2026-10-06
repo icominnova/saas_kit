@@ -330,7 +330,7 @@ class ContractCustomPlan(models.Model):
         extra_modules = self.env['saas.module'].sudo().search([('is_published', '=', True), ('id', 'not in', modules_list), ('odoo_version_id.code', '=', contract_id.odoo_version_id.code or '19.0')])
         extra_modules = [x.id for x in extra_modules]
         contract_id.update_saas_module_ids = [(6, 0 ,extra_modules)]
-        _logger.info('-------------- %r -------------'%contract_id.access_token)
+        _logger.info("SaaS contract access token generated")
         contract_id.sync_modules()
         return contract_id.access_token
 
