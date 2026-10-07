@@ -73,13 +73,10 @@ class odoo_remote_container:
         _logger.info("Reading Conf from %r:- Done"%path)
 
     def get_client(self):
-        try:
-            self.dclient = docker.DockerClient(base_url='tcp://%s:2375'%self.remote_host)
-        except Exception as e:
-            _logger.error("Docker Library not installed!!")
-            raise e
-        return True
-    
+        raise RuntimeError(
+            "Remote Docker access is disabled until a secured transport is configured"
+        )
+
     def check_error(self,func):
         functools.wraps(func)
         def wrapper(*args,**argc):
@@ -187,10 +184,10 @@ class odoo_remote_container:
         try:
             # ssh_obj =  self.login_remote()
             path = self.odoo_config+"/"+folder+"/data-dir"
-            cmd = "mkdir -p %s; chmod -R 777 %s"%(path,path)
+            cmd = "mkdir -p %s; chmod 750 %s"%(path,path)
             if not self.execute_on_remote_shell(ssh_obj,cmd):
                 return False
-            cmd = "chown 777 %s"%path
+            cmd = "chmod 750 %s"%path
             if self.execute_on_remote_shell(ssh_obj,cmd):
                 self.response['extra-addons'] = path
                 return path
@@ -404,29 +401,14 @@ class odoo_remote_container:
                 file.write("%s = %s\n"%each)
  
     def login_remote(self):
-        try:
-            ssh_obj = paramiko.SSHClient()
-            ssh_obj.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            if not self.is_keyfile:
-                ssh_obj.connect(hostname=self.remote_host, username=self.remote_user, password=self.remote_password,port=self.remote_port)
-            else:
-                ssh_obj.connect(hostname=self.remote_host, username=self.remote_user, key_filename=self.keyfile_path,port=self.remote_port)
-            
-            return ssh_obj
-        except Exception as e:
-            _logger.error(f"Couldn't connect remote   error       {e}")
-            return False
+        raise RuntimeError(
+            "Remote SSH access is disabled until hardened transport is configured"
+        )
 
-    def execute_on_remote_shell(self,ssh_obj,command):
-        _logger.info(command)
-        try:
-            ssh_stdin, ssh_stdout, ssh_stderr = ssh_obj.exec_command(command)
-            _logger.info(ssh_stdout.readlines())
-            return True
-        except Exception as e:
-            _logger.error("+++ERROR++ %s",command)
-            _logger.error("++++++++++ERROR++++%r",e)
-            return False
+    def execute_on_remote_shell(self, ssh_obj, command):
+        raise RuntimeError(
+            "Remote shell execution is disabled until hardened transport is configured"
+        )
 
     def cloning_db(self,url,source_db,new_db,admin_passwd):
         sock_db = xmlrpc.client.ServerProxy('{}/xmlrpc/2/db'.format(url))
@@ -517,7 +499,14 @@ class nginx_vhost:
 
 
 def create_db_template(db_template=None,modules=None, config_path=None,host_server = None, db_server = None, version = "19.0", is_enterprise = False, enterprise_addons_path = None):
-    _logger.info(locals())
+    raise RuntimeError(
+        "Remote SaaS provisioning is disabled until hardened transport is configured"
+    )
+    _logger.info(
+        "Creating remote SaaS template %s for Odoo %s",
+        db_template,
+        version,
+    )
 
     response = {}
     if version not in SAAS_ODOO_VERSIONS:
@@ -592,7 +581,10 @@ def create_db_template(db_template=None,modules=None, config_path=None,host_serv
 
 
 def main(context=None):
-    _logger.info(context)
+    raise RuntimeError(
+        "Remote SaaS provisioning is disabled until hardened transport is configured"
+    )
+    _logger.info("Starting remote SaaS provisioning")
 
     status_checks = {"server" : True, "dir" : True, "filestore" : True, "domain_mapping" : True, "db_clone" : True}
 
@@ -638,18 +630,10 @@ def main(context=None):
         _logger.info("DEST %r",dest)
 
 #        _logger.info(OdooObject.execute_on_remote_shell(ssh_obj,"cp -r %s %s"%(src,dest)))
-        OdooObject.execute_on_shell(
-            "sshpass -p %r rsync -var -e  \"ssh -o StrictHostKeyChecking=no\" %r/ %r@%r:%r"
-            % (
-                context["host_server"]["password"],
-                src,
-                context["host_server"]["user"],
-                context["host_server"]["host"],
-                dest,
-            )
+        raise RuntimeError(
+            "Remote filestore synchronization is disabled until hardened SSH transport is configured"
         )
         _logger.info("Remote SaaS data synchronization completed")
-        _logger.info(OdooObject.execute_on_remote_shell(ssh_obj,"chmod -R 777 %s"%dest))    #########----->>> do we really need it
     except OSError as e:
         _logger.info("Filestore couldnot be copied %r",e)
     finally:
@@ -694,12 +678,15 @@ def main(context=None):
 
 
 def rebuild(context=None):
+    raise RuntimeError(
+        "Remote SaaS provisioning is disabled until hardened transport is configured"
+    )
     '''
     Method to remove current container, and rebuild it by collecting all new params/image
     Params : Context should have all the params to rebuild container like, OdooObject.run_odoo(host_domain, db, conf_odoochat_key, is_enterprise = is_enterprise, enterprise_addons_path = enterprise_addons_path)
     Return : response object containing status of rebuild and related data
     '''
-    _logger.info(context)
+    _logger.info("Starting remote SaaS rebuild")
     db = context.get("db_name")
     odoo_version = context.get("version","19.0")
     host_domain = context.get("host_domain")

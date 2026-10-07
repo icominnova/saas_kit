@@ -7,7 +7,7 @@ import paramiko
 
 nginx_vhost = "/var/lib/odoo/Odoo-SAAS-Data/docker_vhosts/"
 data_dir = "/var/lib/odoo/Odoo-SAAS-Data/"
-client_admin_passwd = "Yb32vfyRsMa7HDaG"
+client_admin_passwd = None
 template_port = 8888
 _logger = logging.getLogger(__name__)
 oversion = "18"
@@ -22,7 +22,10 @@ class container(object):
             if host == "localhost":
                 self.dclient = docker.from_env()
             else:
-                self.dclient = docker.DockerClient("tcp://%s:2375"%host)
+                _logger.error(
+                    "Remote Docker access is disabled until a secured transport is configured"
+                )
+                return False
         except Exception as e:
             _logger.error("Not able to get a docker client!!")
             return False
@@ -172,32 +175,27 @@ def update_values(config_path):
     return result
 
 def login_remote(context):
-    try:
-        ssh_obj = paramiko.SSHClient()
-        ssh_obj.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        if not context["is_keyfile"]:
-            ssh_obj.connect(hostname = context['host'], username = context['user'], password = context['password'], port = context['port'])
-        else:
-            ssh_obj.connect(hostname = context['host'], username = context['user'], key_filename = context['keyfile_path'], port = context['port'])
-        return ssh_obj
-    except Exception as e:
-        _logger.error("Couldn't connect remote %r"%e)
-        return False
+    _logger.error(
+        "Remote SSH operations are disabled until hardened SSH transport is configured"
+    )
+    return False
 
-def execute_on_remote_shell(ssh_obj,command):
-    _logger.info('Saas Command to execut on Remote shell --- %r'%command)
-    try:
-        ssh_stdin, ssh_stdout, ssh_stderr = ssh_obj.exec_command(command)
-        _logger.info(ssh_stdout.readlines())
-        _logger.info('Saas Successfully executed command on Remote shell ---')
-        return True
-    except Exception as e:
-        _logger.error("Saas Error while executing Command on Remote")
-        _logger.error("++++++++++ERROR++++%r",e)
-        return False
+def execute_on_remote_shell(ssh_obj, command):
+    _logger.error(
+        "Remote shell execution is disabled until hardened SSH transport is configured"
+    )
+    return False
 
 def main(domain, port, host_server, config_path, container_id=None, db_server=None, from_drop_container=None, from_drop_db=None, version = "18"):
     server_type = host_server['server_type']
+    if server_type != "self":
+        return {
+            "status": False,
+            "message": (
+                "Remote SaaS operations are disabled until "
+                "a secured transport is configured"
+            ),
+        }
     _logger.info("____%r++++++"%domain)
     _logger.info("____%r++++++"%container_id)
     _logger.info("____%r++++++"%port)
@@ -241,6 +239,14 @@ def main(domain, port, host_server, config_path, container_id=None, db_server=No
 def main_plan(domain , host_server = None,  config_path = None):
 
     server_type = host_server['server_type']
+    if server_type != "self":
+        return {
+            "status": False,
+            "message": (
+                "Remote SaaS operations are disabled until "
+                "a secured transport is configured"
+            ),
+        }
     _logger.info("____%r++++++"%domain)
     _logger.info("SaaS host server context received; credentials redacted")
 

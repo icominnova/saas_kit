@@ -40,7 +40,10 @@ def check_ips(custom_domain, subdomain):
     ip_addr1: ip address of custom domain.
     ip_addr2: ip address of subdomain.
     """    
-    _logger.info(locals())
+    _logger.info(
+        "Checking DNS mapping for custom domain %s",
+        custom_domain,
+    )
     try:
         ip_addr1 = socket.gethostbyname(custom_domain)
         ip_addr2 = socket.gethostbyname(subdomain)

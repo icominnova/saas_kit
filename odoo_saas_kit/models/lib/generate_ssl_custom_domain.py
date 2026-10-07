@@ -116,7 +116,10 @@ def create_vhost_https(subdomain, custom_domain, odoo_backend, longpolling_backe
 def create_vhost_http(subdomain, custom_domain, odoo_backend, longpolling_backend, docker_vhosts="/opt/odoo/Odoo-SAAS-Data/docker_vhosts", ssl_flag=False):
     #sed -i 's/.*ssl_certificate\ .*/ ssl_certificate \/this\/is\/test/' ssl.conf
     new_conf = os.path.join(docker_vhosts, custom_domain+".conf")
-    _logger.info(locals()) 
+    _logger.info(
+        "Creating HTTP vhost for custom domain %s",
+        custom_domain,
+    )
     if False and ssl_flag:
         shutil.copyfile(os.path.join(docker_vhosts, "vhosttemplatehttps.txt"), os.path.join(docker_vhosts, custom_domain+".conf"))
         # new_conf = custom_domain+".conf" #only for testing the code
@@ -163,17 +166,35 @@ def read_path_saas_conf(module_path):
     return odoo_saas_data
 
 def run_certbot(custom_domain, client_email, webroot_path, dry_run):
-    _logger.info(locals())
-    out = generate_certificate(custom_domain, client_email, webroot_path, dry_run)
-    _logger.info(out)
-    if not out['status']:
-        _logger.error("Certificate generation failed", out['stderr'])
-        exit(1)
-    else:
-        _logger.info(out['stdout'], out['stderr'])
+    _logger.info(
+        "Starting certificate generation for %s (dry_run=%s)",
+        custom_domain,
+        dry_run,
+    )
+    out = generate_certificate(
+        custom_domain,
+        client_email,
+        webroot_path,
+        dry_run,
+    )
+    if not out["status"]:
+        _logger.error(
+            "Certificate generation failed for %s",
+            custom_domain,
+        )
+        return False
+
+    _logger.info(
+        "Certificate generation completed for %s",
+        custom_domain,
+    )
+    return True
 
 def main_remove(custom_domain, module_path):
-    _logger.info('-'*10, custom_domain, module_path, '-'*10)
+    _logger.info(
+        "Removing custom domain %s",
+        custom_domain,
+    )
     odoo_saas_data = read_path_saas_conf(module_path)
     docker_vhosts = os.path.join(odoo_saas_data, "docker_vhosts")
     try:
@@ -183,7 +204,11 @@ def main_remove(custom_domain, module_path):
         return { "status": False,"message":"Error %r"%e }
 
 def main_add(subdomain, custom_domain, ssl_flag, module_path):
-    _logger.info(locals())
+    _logger.info(
+        "Adding custom domain %s (ssl=%s)",
+        custom_domain,
+        ssl_flag,
+    )
     regex = re.compile(r"^((?=[a-z0-9-]{1,63}\.)(xn--)?[a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,63}$")
     if not re.search(regex,custom_domain):
         _logger.info("Invalid Domain %r"%custom_domain)
@@ -201,7 +226,16 @@ def main_add(subdomain, custom_domain, ssl_flag, module_path):
             #create_vhost(subdomain, custom_domain, odoo_backend, longpolling_backend, docker_vhosts=os.path.join(odoo_saas_data, "docker_vhosts"))
             if ssl_flag:
                 _logger.info("SSL to be done for %s"%custom_domain)
-                run_certbot(custom_domain, client_email=CLIENT_EMAIL, webroot_path=WEBROOT_PATH, dry_run=False)
+                if not run_certbot(
+                    custom_domain,
+                    client_email=CLIENT_EMAIL,
+                    webroot_path=WEBROOT_PATH,
+                    dry_run=False,
+                ):
+                    return {
+                        "status": False,
+                        "message": "SSL certificate generation failed",
+                    }
                 _logger.info("SSL generated")
                 create_vhost_https(subdomain, custom_domain, odoo_backend, longpolling_backend, docker_vhosts=os.path.join(odoo_saas_data, "docker_vhosts"))
                 _logger.info("Create HHTPS vhost")
@@ -218,7 +252,11 @@ def main_add(subdomain, custom_domain, ssl_flag, module_path):
 
 
 def main_add_domain(subdomain, custom_domain, ssl_flag, module_path):
-    _logger.info(locals())
+    _logger.info(
+        "Adding client custom domain %s (ssl=%s)",
+        custom_domain,
+        ssl_flag,
+    )
     regex = re.compile(r"^((?=[a-z0-9-]{1,63}\.)(xn--)?[a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,63}$")
     if not re.search(regex,custom_domain):
         _logger.info("Invalid Domain %r"%custom_domain)
@@ -233,7 +271,16 @@ def main_add_domain(subdomain, custom_domain, ssl_flag, module_path):
             _logger.info("%r %r"%(odoo_backend, longpolling_backend))
             if ssl_flag:
                 _logger.info("SSL to be done for %s"%custom_domain)
-                run_certbot(custom_domain, client_email=CLIENT_EMAIL, webroot_path=WEBROOT_PATH, dry_run=False)
+                if not run_certbot(
+                    custom_domain,
+                    client_email=CLIENT_EMAIL,
+                    webroot_path=WEBROOT_PATH,
+                    dry_run=False,
+                ):
+                    return {
+                        "status": False,
+                        "message": "SSL certificate generation failed",
+                    }
                 _logger.info("SSL generated")
                 create_vhost_https(subdomain, custom_domain, odoo_backend, longpolling_backend, docker_vhosts=os.path.join(odoo_saas_data, "docker_vhosts"))
                 _logger.info("Create HHTPS vhost")

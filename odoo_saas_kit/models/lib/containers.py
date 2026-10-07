@@ -15,7 +15,10 @@ class container(object):
             if host == "localhost":
                 self.dclient = docker.from_env()
             else:
-                self.dclient = docker.DockerClient(base_url='tcp://%s:2375'%host)
+                _logger.error(
+                    "Remote Docker access is disabled until a secured transport is configured"
+                )
+                return False
         except Exception as e:
             _logger.info("Not able to get a docker client!!")
             return False

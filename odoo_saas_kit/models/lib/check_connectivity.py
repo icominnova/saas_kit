@@ -6,48 +6,72 @@ import subprocess
 import argparse
 import logging
 import logging
-import paramiko
 import psycopg2
 _logger = logging.getLogger(__name__)
 
 def ishostaccessible(details):
-    response = dict(
-        status=True,
-        message='Success'
+    response = {
+        "status": True,
+        "message": "Success",
+    }
+
+    if details.get("server_type") == "self":
+        return response
+
+    _logger.warning(
+        "Remote host connectivity check blocked by security policy"
     )
-    if details['server_type'] == "self":
-        return response
-    try:
-        ssh_obj = paramiko.SSHClient()
-        ssh_obj.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        _logger.info("Saas In check_connectivity scipt at Line {}".format(23))
-        if not details["is_keyfile"]:
-            ssh_obj.connect(hostname = details['host'], username = details['user'], password = details['password'], port = details['port'])
-        else:
-            ssh_obj.connect(hostname = details['host'], username = details['user'], key_filename = details['keyfile_path'], port = details['port'])
-        response['result'] = ssh_obj
-        return response
-    except Exception as e:
-        _logger.info("Couldn't connect remote %r"%e)
-        response['status'] = False
-        response['message'] = e
-    return response
+
+    return {
+        "status": False,
+        "message": (
+            "Remote host connectivity is disabled until "
+            "hardened transport is configured"
+        ),
+    }
 
 def isdbaccessible(details):
-    response = dict(
-        status=True,
-        message='Success'
-    )
-    _logger.info("Connectivity check requested; credentials redacted")
+    response = {
+        "status": True,
+        "message": "Success",
+    }
+
+    server_type = details.get("server_type")
+
+    if server_type not in (None, "self"):
+        _logger.warning(
+            "Remote database connectivity check blocked by security policy"
+        )
+        return {
+            "status": False,
+            "message": (
+                "Remote database connectivity is disabled until "
+                "hardened transport is configured"
+            ),
+        }
+
+    connection = None
+
     try:
-        psycopg2.connect(
-                dbname="postgres",
-                user=details['user'],
-                password=details['password'],
-                host=details['host'],
-                port=details['port'])
-    except Exception as e:
-        _logger.info("Error while connecting DB :-%r"%e)
-        response['status'] = False
-        response['message'] = e
+        connection = psycopg2.connect(
+            dbname="postgres",
+            user=details["user"],
+            password=details["password"],
+            host=details["host"],
+            port=details["port"],
+        )
+
+    except Exception as exc:
+        _logger.warning(
+            "Database connectivity check failed: %s",
+            type(exc).__name__,
+        )
+
+        response["status"] = False
+        response["message"] = "Database connection failed"
+
+    finally:
+        if connection is not None:
+            connection.close()
+
     return response

@@ -16,20 +16,11 @@ except ImportError as e:
     _logger.info("Paramiko Library not installed!!")
 
 def isitaccessible(details):
-    _logger.info("Saas Going to Connect Server with SSH....")
-    try:
-        ssh_obj = paramiko.SSHClient()
-        ssh_obj.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        if not details["is_keyfile"]:
-            ssh_obj.connect(hostname = details['host'], username = details['user'], password = details['password'], port = details['port'])
-        else:
-            ssh_obj.connect(hostname = details['host'], username = details['user'], key_filename = details['keyfile_path'], port = details['port'])
-        _logger.info("...............  Connection successful... ....")
-        return ssh_obj
-    except Exception as e:
-        _logger.error("Couldn't connect remote%r"%e)
-        return False
-    
+    _logger.error(
+        "Remote SaaS connectivity is disabled until hardened transport is configured"
+    )
+    return False
+
 def create_db_template(db_template = None, modules = None, config_path = None, host_server = None, db_server = None, version = "19.0", is_enterprise = False, enterprise_addons_path = None):
     _logger.info("SaaS request received; sensitive context redacted")
     if host_server.get('server_type') == "self":
