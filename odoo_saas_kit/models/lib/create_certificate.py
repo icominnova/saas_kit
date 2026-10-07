@@ -1,90 +1,152 @@
-import subprocess
-import os
-import socket
 import logging
+import os
+import re
+import socket
+import subprocess
+from pathlib import Path
+
+
 _logger = logging.getLogger(__name__)
 
-"""
+DOMAIN_RE = re.compile(
+    r"^((?=[a-z0-9-]{1,63}\.)"
+    r"(xn--)?[a-z0-9]+(-[a-z0-9]+)*\.)+"
+    r"[a-z]{2,63}$"
+)
 
-We have to add this to nginx vhost files.
-Or better to add this to one single file
-and include it in various vhosts
-
-location ^~ /.well-known/acme-challenge/ {
-    default_type "text/plain";
-}
+CERTBOT_HELPER = "/usr/local/sbin/sunsoft-certbot"
+SUDO_BIN = "/usr/bin/sudo"
+EXPECTED_WEBROOT = Path("/usr/share/nginx/html").resolve()
 
 
+def _normalize_domain(value):
+    domain = (value or "").strip().lower().rstrip(".")
 
-certbot certonly --webroot -w /home/www/letsencrypt -d domain.com --dry-run
-todo:
-"""
+    if not DOMAIN_RE.fullmatch(domain):
+        raise ValueError("Invalid domain name")
+
+    return domain
+
 
 def create_dir(webroot_path="/usr/share/nginx/html/"):
-    """
-    Directory is automatically created, when using certbot.
-    Only use this if creating .well-known/acme-challenge
-    manually is specifically required.
-    """
+    root = Path(webroot_path).resolve()
 
-    acme_challenge_dir_path = os.path.join(webroot_path, ".well-known/acme-challenge")
-    if os.path.exists(acme_challenge_dir_path):
-        _logger.info(acme_challenge_dir_path, "exists")
-    else:
-        os.makedirs(acme_challenge_dir_path)
+    if root != EXPECTED_WEBROOT:
+        raise ValueError("Unsupported ACME webroot")
 
-    return acme_challenge_dir_path
+    challenge = root / ".well-known" / "acme-challenge"
+    challenge.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    return str(challenge)
+
+
+def _resolve_ips(domain):
+    results = socket.getaddrinfo(
+        domain,
+        None,
+        type=socket.SOCK_STREAM,
+    )
+
+    return {
+        item[4][0]
+        for item in results
+        if item and item[4]
+    }
+
 
 def check_ips(custom_domain, subdomain):
-    """
-    ip_addr1: ip address of custom domain.
-    ip_addr2: ip address of subdomain.
-    """    
+    custom_domain = _normalize_domain(custom_domain)
+    subdomain = _normalize_domain(subdomain)
+
     _logger.info(
         "Checking DNS mapping for custom domain %s",
         custom_domain,
     )
+
     try:
-        ip_addr1 = socket.gethostbyname(custom_domain)
-        ip_addr2 = socket.gethostbyname(subdomain)
-    except Exception as e:
-        _logger.info("The Entered Domain(Sub) could not be resolved %r"%e)
-        raise Exception("The Entered Domain(Sub) could not be resolved. Please ensure domain is mapped correctly!!")
-    if ip_addr1 != ip_addr2:
-        _logger.info("Domain %s not yet mapped. Please make the necessary DNS changes before proceeding!!"%custom_domain)
-        raise Exception("Domain %s not yet mapped. Please make the necessary DNS changes before proceeding!!"%custom_domain)
+        custom_ips = _resolve_ips(custom_domain)
+        source_ips = _resolve_ips(subdomain)
+
+    except (socket.gaierror, OSError):
+        raise Exception(
+            "The entered domain could not be resolved. "
+            "Please ensure DNS is mapped correctly."
+        )
+
+    if not custom_ips or not source_ips:
+        raise Exception(
+            "Unable to determine DNS addresses."
+        )
+
+    if custom_ips.isdisjoint(source_ips):
+        raise Exception(
+            "Custom domain is not mapped to the SaaS server."
+        )
+
     return True
 
-def generate_certificate(domain_name, client_email, webroot_path, dry_run):
-    #path = create_dir()
-    cmd = ["sudo", "certbot", "-n", "certonly", "--webroot", "-w", webroot_path]
-    cmd.extend(["-d", domain_name])
-    if dry_run:
-        cmd.extend(["--agree-tos", "-m", client_email, "--dry-run"])
-    else:
-        cmd.extend(["--agree-tos", "-m", client_email])
+
+def generate_certificate(
+    domain_name,
+    client_email,
+    webroot_path,
+    dry_run,
+):
+    del client_email
 
     try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = proc.communicate()
+        domain = _normalize_domain(domain_name)
 
-        """
-        Function returns:
-        status: return code of the process, return code > 1 means ERR and < 1 means OK.
-        stdout: stdout of process.
-        stderr: stderr of process.
-        """
+        webroot = Path(webroot_path).resolve()
+
+        if webroot != EXPECTED_WEBROOT:
+            raise ValueError(
+                "Unsupported ACME webroot"
+            )
+
+        cmd = [
+            SUDO_BIN,
+            "-n",
+            CERTBOT_HELPER,
+            domain,
+        ]
+
+        if dry_run:
+            cmd.append("--dry-run")
+
+        proc = subprocess.run(
+            cmd,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=600,
+            check=False,
+        )
+
         return {
-            "status": not bool(proc.returncode),
-            "stdout": out.decode(),
-            "stderr": err.decode()
+            "status": proc.returncode == 0,
+            "stdout": "",
+            "stderr": "",
+            "returncode": proc.returncode,
         }
-    except subprocess.CalledProcessError as e:
-        _logger.info(e)
 
-    # if command is successful then certs will be available in /etc/letsencrypt/live/<domain>
+    except subprocess.TimeoutExpired:
+        _logger.error(
+            "Certificate generation timed out"
+        )
 
-if __name__ == "__main__":
-    generate_certificate("domain.com", "abc@email.com", "/usr/share/nginx/html/", dry_run=True)
-    #check_ips("google.com", "youtube.com")
+    except (OSError, ValueError):
+        _logger.error(
+            "Certificate generation rejected"
+        )
 
+    return {
+        "status": False,
+        "stdout": "",
+        "stderr": "",
+        "returncode": 1,
+    }
