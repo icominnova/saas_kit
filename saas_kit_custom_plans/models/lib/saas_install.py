@@ -12,6 +12,7 @@ import logging
 from collections import defaultdict
 from contextlib import closing
 from configparser import ConfigParser
+from odoo import _
 from odoo.addons.odoo_saas_kit.models.lib import saas_client_db
 from odoo.addons.odoo_saas_kit.models.lib.pg_query import PgQuery
 from .. static_custom_plan import SAAS_ODOO_VERSIONS
@@ -121,7 +122,7 @@ def main(context=None):
         OdooObject.default_version = odoo_version
 
     if host_domain != db:
-        raise Exception("Host Name should match the DB Name")
+        raise Exception(_("Host Name should match the DB Name"))
     endpoint = "localhost"
     if context['host_server']['server_type'] == 'remote':
         endpoint = str(context['host_server'].get('host'))
@@ -129,6 +130,6 @@ def main(context=None):
 
 
     if not response:
-        raise Exception("SAAS Clinet Could not be created!! Please follow logs for details")
+        raise Exception(_("SAAS Clinet Could not be created!! Please follow logs for details"))
     return response
 

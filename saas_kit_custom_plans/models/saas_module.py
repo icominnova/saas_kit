@@ -7,7 +7,7 @@
 # 
 #################################################################################
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from . lib import module_lib
 import os
@@ -45,7 +45,7 @@ class SaasModule(models.Model):
     def check_name_and_version(self):
         check=self.env['saas.module'].sudo().search([('technical_name','=',self.technical_name), ('id','!=',self.id), ('odoo_version_id','=',self.odoo_version_id.id)])
         if (check):
-            raise UserError("Module with same version already exists!")
+            raise UserError(_("Module with same version already exists!"))
         
     @api.onchange('module_type')
     def change_module_publish(self):
@@ -57,7 +57,7 @@ class SaasModule(models.Model):
     def check_module_type(self):
         for rec in self:
             if rec.module_type == "custom" and not rec.addons_path:
-                raise UserError("Please enter module addons path!!")
+                raise UserError(_("Please enter module addons path!!"))
         
     @api.onchange('module_type','odoo_version_id')
     def change_addons_path(self):
@@ -86,10 +86,10 @@ class SaasModule(models.Model):
             Check whether the module exist in the path or not.
             """
             if not self.check_available_version():
-                raise UserError("No Version has been configured yet, please configure atleast one version to continue")
+                raise UserError(_("No Version has been configured yet, please configure atleast one version to continue"))
             
             if self.module_type=='custom' and not self.addon_path_verified:
-                    raise UserError("Please verify custom addons path to publish the module.")
+                    raise UserError(_("Please verify custom addons path to publish the module."))
                 
             # if self.auto_install and self.module_type=='custom':
                 # if self.addons_path:
@@ -114,7 +114,7 @@ class SaasModule(models.Model):
         res = None
         for vals in vals_list:
             if not vals.get('module_type'):
-                raise UserError('Please choose module type!!')
+                raise UserError(_('Please choose module type!!'))
             else:
                 res = super(SaasModule, self).create(vals)
 
@@ -149,12 +149,12 @@ class SaasModule(models.Model):
                     if os.path.isdir(module_path):
                         if os.path.exists(os.path.join(module_path, '__manifest__.py')):
                             self.addon_path_verified = True
-                            message = self.env['custom.message.wizard'].create({'message':"Path verified!"})
+                            message = self.env['custom.message.wizard'].create({'message': _("Path verified!")})
                             action = self.env.ref('odoo_saas_kit.custom_message_wizard_action').read()[0]
                             action['res_id'] = message.id
                             return action
-                    raise UserError("Path verified but custom modules doesn't exists")
-                raise UserError("Custom Addon's Path doesn't exist")
+                    raise UserError(_("Path verified but custom modules doesn't exists"))
+                raise UserError(_("Custom Addon's Path doesn't exist"))
             except Exception as e:
                 raise UserError(e)
 

@@ -4,7 +4,7 @@
 #   Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>)
 #   See LICENSE file for full copyright and licensing details.
 #   License URL : <https://store.webkul.com/license.html/>
-# 
+#
 #################################################################################
 
 import re
@@ -46,7 +46,7 @@ class ContractCustomPlan(models.Model):
                 rec.odoo_version_id = rec.plan_id.plan_odoo_version.id
                 rec.version_code = rec.plan_id.plan_odoo_version.code
                 rec.is_enterprise = rec.plan_id.plan_odoo_version.is_enterprise
-                
+
 
     def send_credential_email(self):
         """
@@ -55,7 +55,7 @@ class ContractCustomPlan(models.Model):
         if self.is_custom_plan:
             self.ensure_one()
             if not self.saas_client.client_url:
-                raise UserError("SaaS Instance Not Found! Please create it from the associated client record for sharing the credentials.")
+                raise UserError(_("SaaS Instance Not Found! Please create it from the associated client record for sharing the credentials."))
             template = self.on_create_email_template
             compose_form = self.env.ref('mail.email_compose_message_wizard_form')
 
@@ -70,7 +70,7 @@ class ContractCustomPlan(models.Model):
                 self.state = 'confirm'
             except Exception as e:
                 _logger.info("--------EXCEPTION-WHILE-UPDATING-DATA-AND-SENDING-INVITE-------%r----", e)
-                raise UserError('Exception while updating client data.')
+                raise UserError(_('Exception while updating client data.'))
 
             ctx = dict(
                 default_model='saas.client',
@@ -111,7 +111,7 @@ class ContractCustomPlan(models.Model):
                                 response = response.get('result')
                                 user_count = response[0][0]
                                 if obj.max_users != -1 and user_count > obj.max_users:
-                                    raise UserError("Client have crossed the maximum user limit.")
+                                    raise UserError(_("Client have crossed the maximum user limit."))
                                 user_count = max(user_count, obj.saas_users)
                                 if user_count > obj.previous_cycle_user:
                                     arrer_response = query.get_arrear_users(
@@ -120,13 +120,13 @@ class ContractCustomPlan(models.Model):
                                         limit = user_count - obj.previous_cycle_user,
                                     )
                                     if not arrer_response.get('status'):
-                                        raise UserError("Couldn't fetch arrer users! Please try again.")
+                                        raise UserError(_("Couldn't fetch arrer users! Please try again."))
                                     data = obj.calculate_arrear_price(arrer_response)
 
                         if not user_count:
-                            raise UserError("Couldn't fetch user count! Please try again later.")                    
+                            raise UserError(_("Couldn't fetch user count! Please try again later."))
                     try:
-                        price = None                    
+                        price = None
                         if first_invoice == True:
                             if obj.per_user_pricing:
                                 obj.update_billing_history(first=True)
@@ -157,19 +157,19 @@ class ContractCustomPlan(models.Model):
                         _logger.info("--------Invoice--Created-------%r", invoice)
                     except Exception as e:
                         _logger.info("--------Exception-While-Creating-Invoice-------%r", e)
-                        raise UserError("Exception While Creating Invoice: {}".format(e))
+                        raise UserError(_("Exception While Creating Invoice: {}").format(e))
                     else:
                         old_date = obj.next_invoice_date and fields.Date.from_string(obj.next_invoice_date) or fields.Date.from_string(fields.Date.today())
                         if first_invoice == True:
                             relative_delta = relativedelta(months=(self.recurring_interval*self.total_cycles))
                             obj.remaining_cycles = 0
-                        else:    
+                        else:
                             relative_delta = relativedelta(months=self.recurring_interval)
                             obj.remaining_cycles -= 1
                         next_date = fields.Date.to_string(old_date + relative_delta)
                         obj.next_invoice_date = next_date
                 else:
-                    raise UserError("This Contract Has Expired!")
+                    raise UserError(_("This Contract Has Expired!"))
             else:
                 res = super(ContractCustomPlan, self).generate_invoice(first_invoice=first_invoice)
                 return res
@@ -190,7 +190,7 @@ class ContractCustomPlan(models.Model):
                 partner_id = obj.partner_id
                 user_id = self.env['res.users'].search([('partner_id', '=', obj.partner_id.id)], limit=1)
                 if not user_id and not partner_id.email:
-                    raise UserError("Please Specify The Email Of The Selected Partner!")
+                    raise UserError(_("Please Specify The Email Of The Selected Partner!"))
                 host_server, db_server = obj.server_id.get_server_details()
                 data['database'] = obj.saas_client and obj.saas_client.database_name or False
                 data['user_id'] = obj.odoo_version_id.use_specific_user_template and obj.odoo_version_id.template_user_id and int(obj.odoo_version_id.template_user_id)
@@ -228,15 +228,15 @@ class ContractCustomPlan(models.Model):
                     obj.user_data_error = False
                     self.env.cr.commit()
                     obj.message_post(
-                        body="User Data Update Successfully",
-                        subject="User Data Update Response",
+                        body=_("User Data Update Successfully"),
+                        subject=_("User Data Update Response"),
                     )
                 else:
                     _logger.info("------2-------")
                     obj.user_data_updated = False
                     obj.user_data_error = True
                     self.env.cr.commit()
-                    raise UserError("Unable To Write User Data")
+                    raise UserError(_("Unable To Write User Data"))
                 if obj.per_user_pricing:
                     vals = dict()
                     vals['database'] = obj.saas_client and obj.saas_client.database_name or False
@@ -246,7 +246,7 @@ class ContractCustomPlan(models.Model):
                         response = None
                         response = query.set_user_limt(vals, db_server=db_server, is_count=True)
                     except Exception as e:
-                        _logger.info("-------Exception while updation limit %r -------"%e)    
+                        _logger.info("-------Exception while updation limit %r -------"%e)
                     if response.get('status'):
                         obj.saas_client.restart_client()
                         _logger.info("---------   Updated User limits --------")
@@ -264,12 +264,12 @@ class ContractCustomPlan(models.Model):
         for obj in self:
             if obj.is_custom_plan:
                 if obj.odoo_version_id.use_specific_user_template and not obj.odoo_version_id.template_user_id:
-                    raise UserError("Database Template User ID Not Set!")
+                    raise UserError(_("Database Template User ID Not Set!"))
                 elif obj.odoo_version_id.template_user_id:
                     try:
                         _ = int(obj.odoo_version_id.template_user_id)
                     except Exception as e:
-                        raise UserError("Database Template ID Must be a Interger Value!")
+                        raise UserError(_("Database Template ID Must be a Interger Value!"))
                 token = generate_token()
                 if (int(obj.version_code[:2]) >= 18):
                     token = self.generate_signup_auth_token()
@@ -280,8 +280,8 @@ class ContractCustomPlan(models.Model):
                         obj.update_billing_history(first=True)
                         obj.previous_cycle_user = max(obj.min_users, obj.saas_users)
                 except Exception as e:
-                    raise UserError("Unable To Write User Data %r"%e)
-                
+                    raise UserError(_("Unable To Write User Data %r") % e)
+
                 try:
                     obj.sudo().set_user_data(token=token)
                     obj._cr.commit()
@@ -289,7 +289,7 @@ class ContractCustomPlan(models.Model):
                     obj.saas_client.invitation_url = reset_pwd_url
                 except Exception as e:
                     _logger.info("--------EXCEPTION-WHILE-UPDATING-DATA-AND-SENDING-INVITE-------%r----", e)
-                    raise UserError('Exception while updating client data.')
+                    raise UserError(_('Exception while updating client data.'))
             else:
                 res = super(ContractCustomPlan, self).update_user_data()
                 return res
@@ -321,7 +321,7 @@ class ContractCustomPlan(models.Model):
                 contract_id.sync_required = True
             modules_list.append(module.id)
             extra_module_price += module.price
-        
+
         extra_module_price *= multiplier
         contract_id.saas_module_ids = [(6 , 0, modules_list)]
         contract_id.contract_rate += extra_module_price
@@ -337,22 +337,22 @@ class ContractCustomPlan(models.Model):
     @api.model
     def get_module(self, contract_id):
         """
-        Called from Update App.js. 
-        It add the remaining modules in update_saas_module_ids, to show these module in Model list to customer. 
+        Called from Update App.js.
+        It add the remaining modules in update_saas_module_ids, to show these module in Model list to customer.
         """
         contract_id = self.env['saas.contract'].sudo().browse([contract_id])
-        modules = self.env['saas.module'].sudo().search([('is_published', '=', True), ('odoo_version_id.code', '=', contract_id.odoo_version_id.code or '19.0')])        
+        modules = self.env['saas.module'].sudo().search([('is_published', '=', True), ('odoo_version_id.code', '=', contract_id.odoo_version_id.code or '19.0')])
         extra_modules = []
         for module in modules:
             if module in contract_id.saas_module_ids:
                 continue
             extra_modules.append(module.id)
-        _logger.info("----------- %r ----------"%extra_modules)        
+        _logger.info("----------- %r ----------"%extra_modules)
         contract_id.update_saas_module_ids = [(6, 0 ,extra_modules)]
         _logger.info("----------- %r ----------"%contract_id.update_saas_module_ids)
         contract_id._cr.commit()
         # return True
-        
+
         ######## New Update to load the template for Extra Apps  ########
         data = {}
         data['modules_data'] = self.env['ir.ui.view']._render_template("saas_kit_custom_plans.portal_add_apps_template", {'contract': contract_id})
@@ -395,7 +395,7 @@ class ContractCustomPlan(models.Model):
         Called from Add apps function define above and from form view, To sync the module list between client and contract
         """
         if not self.saas_client:
-            raise UserError("Not Associated Clients ...")
+            raise UserError(_("Not Associated Clients ..."))
         modules_ids = [x.module_id.id for x in self.saas_client.saas_module_ids]
         for module in self.saas_module_ids:
             if module.id not in modules_ids:
@@ -442,7 +442,7 @@ class ContractCustomPlan(models.Model):
             return
         reminder_period = IrDefault._get('res.config.settings', 'reminder_period')
         if not reminder_period:
-            return    
+            return
         starting_date = fields.Date.today() + relativedelta(days=reminder_period)
         if self._fields.get('is_trial_enabled',False):
             contracts = self.env['saas.contract'].sudo().search(["&","&",('expiry_warnings', '>', 0), ('state', 'not in', ['draft', 'open','trial_expired', 'expired', 'cancel', 'trial_converted']),"|","&",('is_trial_enabled','=',True),('start_date', '<', starting_date),"&",('is_trial_enabled','=',False),('next_invoice_date', '<', starting_date)])
@@ -467,9 +467,9 @@ class ContractCustomPlan(models.Model):
             mail_id = template.send_mail(obj.id)
             current_mail = self.env['mail.mail'].sudo().browse(mail_id)
             res = current_mail.send()
-            mail_number = "First" if obj.expiry_warnings == 3 else "Second" if obj.expiry_warnings == 2 else "Third"
+            mail_number = _("First") if obj.expiry_warnings == 3 else _("Second") if obj.expiry_warnings == 2 else _("Third")
             obj.expiry_warnings -= 1
-            obj.message_post(body=mail_number+" Expiry mail sent to Custom", subject="Waring Mail")
+            obj.message_post(body=_("%s Expiry mail sent to Custom") % mail_number, subject=_("Waring Mail"))
             if obj.expiry_warnings == 0:
                 obj.check_contract_expiry()
 
@@ -489,11 +489,11 @@ class ContractCustomPlan(models.Model):
                     'saas_domain_url': server_id[1].server_domain,
                 })
                 self.env.cr.commit()
-            else:    
+            else:
                 if self.server_id.max_clients <= self.server_id.total_clients:
                     self.under_process = False
                     self.env.cr.commit()
-                    raise UserError("Maximum Clients limit reached!")
+                    raise UserError(_("Maximum Clients limit reached!"))
         else:
             res = super(ContractCustomPlan, self).check_server_status()
             return res

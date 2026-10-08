@@ -7,7 +7,7 @@
 # 
 #################################################################################
 
-from odoo import models, fields, api, tools
+from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError
 from odoo.api import NewId
 from odoo.addons.odoo_saas_kit.models.lib import saas
@@ -77,11 +77,11 @@ class SaasOdooVersion(models.Model):
         for obj in self:
             server_id = self.env['saas.server'].sudo().search([('state', '=', 'confirm')], limit=1)
             if not server_id:
-                raise UserError("Please confirm Atleast One server to Continue")
+                raise UserError(_("Please confirm Atleast One server to Continue"))
             if not obj.db_template:
-                raise UserError("Please select the DB template name first.")
+                raise UserError(_("Please select the DB template name first."))
             if obj.is_enterprise and not obj.path_verified:
-                raise UserError("Please verify Enterprise Addons Path first.")
+                raise UserError(_("Please verify Enterprise Addons Path first."))
             config_path = tools.misc.file_path('odoo_saas_kit')
             db_template_name = "template_{}".format(obj.db_template)
             modules = ['wk_saas_tool']
@@ -108,17 +108,17 @@ class SaasOdooVersion(models.Model):
                         if msg:
                             raise UserError(msg)
                         else:
-                            raise UserError("Unknown Error. Please try again later with some different Template Name")
+                            raise UserError(_("Unknown Error. Please try again later with some different Template Name"))
                 else:
-                    raise UserError("No Response. Please try again later with some different Template Name")
+                    raise UserError(_("No Response. Please try again later with some different Template Name"))
 
     def unlink(self):
         for obj in self:
             contracts = self.env['saas.contract'].sudo().search([('odoo_version_id', '=', obj.id), ('state', '!=', 'cancel')])
             if len(contracts):
-                raise UserError("There are few contracts which are linked with this version and they are not cancel. Please cancel them first to delete this record.")
+                raise UserError(_("There are few contracts which are linked with this version and they are not cancel. Please cancel them first to delete this record."))
             elif obj.state=='confirm':
-                raise UserError("You cannot delete the confirmed saas odoo version.")
+                raise UserError(_("You cannot delete the confirmed saas odoo version."))
             else:
                 return super(SaasOdooVersion, obj).unlink()
             
@@ -127,10 +127,10 @@ class SaasOdooVersion(models.Model):
             contracts = self.env['saas.contract'].sudo().search([('odoo_version_id', '=', obj.id), ('state', '!=', 'cancel')])
             plans = self.env['saas.plan'].sudo().search([('plan_odoo_version', '=', obj.id), ('state', '!=', 'cancel')])
             if contracts:
-                raise UserError("Please Cancel the Linked Contract first before cancel the saas odoo version.")
+                raise UserError(_("Please Cancel the Linked Contract first before cancel the saas odoo version."))
             
             if plans:
-                raise UserError("Please Cancel the Linked Plans first before cancel the saas odoo version.")
+                raise UserError(_("Please Cancel the Linked Plans first before cancel the saas odoo version."))
             else:
                 action = self.env.ref('saas_kit_custom_plans.action_cancel_odoo_version_wizard').read()[0]
                 return action
@@ -140,7 +140,7 @@ class SaasOdooVersion(models.Model):
         for obj in self:
             server_id = self.env['saas.server'].sudo().search([('host_server', '=', 'self'), ('state', '=', 'confirm')], limit=1)
             if not server_id:
-                raise UserError("Please configure atleast one self server to continue..")
+                raise UserError(_("Please configure atleast one self server to continue.."))
             host_server, db_server = server_id.get_server_details()
             response = query.get_credentials(
                 obj.db_template,
@@ -192,21 +192,21 @@ class SaasOdooVersion(models.Model):
     @api.constrains('default_saas_servers_ids')
     def _check_saas_server_priority(self):
         if any(len(plan.default_saas_servers_ids) != len(plan.default_saas_servers_ids.mapped('server_id')) for plan in self):
-            raise UserError(('You cannot define two Priorities lines for the same Server.'))
+            raise UserError(_("You cannot define two Priorities lines for the same Server."))
         
         for obj in self:
             if obj.is_multi_server and len(obj.default_saas_servers_ids.mapped('priority')) != len(set(obj.default_saas_servers_ids.mapped('priority'))):
-                raise UserError("Two servers cannot have same priority, Please udpate priority for remote servers.")
+                raise UserError(_("Two servers cannot have same priority, Please udpate priority for remote servers."))
 
 
     @api.model_create_multi
     def create(self, vals):
         for val in vals:
             if val.get('name', False) and val.get('name', False) in self.search([]).mapped('name'):
-                raise UserError("Odoo Version with same Version Name already exists!!")
+                raise UserError(_("Odoo Version with same Version Name already exists!!"))
 
             if val.get('is_multi_server', False) and not val.get('default_saas_servers_ids', False):
-                raise UserError("Select Atleast one Server in Default Saas Servers")
+                raise UserError(_("Select Atleast one Server in Default Saas Servers"))
 
         res = super(SaasOdooVersion, self).create(vals)
         return res
@@ -218,10 +218,10 @@ class SaasOdooVersion(models.Model):
         if vals.get('is_enterprise') or not vals.get('is_enterprise',True):
             vals['path_verified'] = False
         if vals.get('name', False) and vals.get('name', False) in self.search([]).mapped('name'):
-            raise UserError("Odoo Version with same Version Name already exists!!")
+            raise UserError(_("Odoo Version with same Version Name already exists!!"))
         
         if (vals.get('is_multi_server', False) or self.is_multi_server) and (not vals.get('default_saas_servers_ids', False) and not self.default_saas_servers_ids):
-            raise UserError("Select Atleast one Server in Default Saas Servers")
+            raise UserError(_("Select Atleast one Server in Default Saas Servers"))
         res = super(SaasOdooVersion, self).write(vals)
         return res
 
@@ -240,21 +240,21 @@ class SaasOdooVersion(models.Model):
                         server = priority.server_id
                         break
                 else:
-                    return (False, 'All server limits over. Please create a new server!')
+                    return (False, _("All server limits over. Please create a new server!"))
                 return (True, server)
 
             else:
-                return (False, 'Please select atleast one server in Default Saas servers')
+                return (False, _("Please select atleast one server in Default Saas servers"))
     
     
     def drop_db_template(self):
         for obj in self:
             if obj.state != 'cancel':
-                raise UserError("Cannot Drop Database: Active Saas odoo version(s) are linked to this DB")
+                raise UserError(_("Cannot Drop Database: Active Saas odoo version(s) are linked to this DB"))
             try:
                 response = client.main(obj.db_template, None, {'server_type': 'self'}, tools.misc.file_path('odoo_saas_kit'), from_drop_db=True, version=obj.code or '16')
                 if not response['db_drop']:
-                    raise UserError("ERROR: Couldn't Drop Client Database. Please Try Again Later.\n\nOperation\tStatus\n\nDrop database: \t{}\n".format(response['db_drop']))
+                    raise UserError(_("ERROR: Couldn't Drop Client Database. Please Try Again Later.\n\nOperation\tStatus\n\nDrop database: \t{}\n").format(response['db_drop']))
                 else:
                     obj.is_drop_db = True
             except Exception as e:
@@ -269,11 +269,11 @@ class SaasOdooVersion(models.Model):
                 if os.path.isdir(module_path):
                     if os.path.exists(os.path.join(module_path, '__manifest__.py')):
                         self.path_verified = True
-                        message = self.env['custom.message.wizard'].create({'message':"Path verified!"})
+                        message = self.env['custom.message.wizard'].create({'message': _("Path verified!")})
                         action = self.env.ref('odoo_saas_kit.custom_message_wizard_action').read()[0]
                         action['res_id'] = message.id
                         return action
-                raise UserError("Path veified but enterprise modules doesn't exists")
-            raise UserError("Path doesn't exist")
+                raise UserError(_("Path veified but enterprise modules doesn't exists"))
+            raise UserError(_("Path doesn't exist"))
         except Exception as e:
             raise UserError(e)

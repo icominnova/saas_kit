@@ -51,7 +51,7 @@ class PlanPage(http.Controller):
         data['odoo_version'] = version_code if version_code else request.env['saas.odoo.version'].sudo().search([('state', '=', 'confirm')]) if data['is_odoo_version'] else request.env['saas.odoo.version'].sudo().search([('state', '=', 'confirm'), ('code', '=', '19.0')], limit=1)
         if not data['odoo_version']:
             data.clear()
-            data['error'] = "Odoo Version not found."
+            data['error'] = _("Odoo Version not found.")
             _logger.info("======== Error - Odoo Version not found. ==========")
             return data
         modules = request.env['saas.module'].sudo().search([('is_published', '=', True),('odoo_version_id.code','=',version_code if version_code else data['odoo_version'][0].code)])
@@ -189,6 +189,7 @@ class Website(Website):
             plans = plans.filtered(lambda p: p.odoo_version_code == version_code)
             values['plans'] = plans
         if not plans:
-            values['message'] = f"No {'community' if not 'e' in version_code else 'enterprise'} plans found for this version."
+            edition = _("Community") if "e" not in version_code else _("Enterprise")
+            values['message'] = _("No %(edition)s plans found for this version.") % {"edition": edition}
         return request.render('saas_kit_custom_plans.saas_plans_cards', values)
 

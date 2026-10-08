@@ -101,7 +101,7 @@ class CustomSaasClient(models.Model):
                 try:
                     response = obj.create_client_instance(domain_name)
                 except Exception as e:
-                    raise UserError("Unable To Create Client\nERROR: {}".format(e))
+                    raise UserError(_("Unable To Create Client\nERROR: {}").format(e))
                 if response:
                     obj.client_url = response.get("url", False)
                     obj.container_port = response.get("port", False)
@@ -131,7 +131,7 @@ class CustomSaasClient(models.Model):
                     obj.update_app_list()
 
                 else:
-                    raise UserError("Couldn't create the instance with the selected domain name. Please use some other domain name.")
+                    raise UserError(_("Couldn't create the instance with the selected domain name. Please use some other domain name."))
             else:
                 obj.missed_modules = False
                 super(CustomSaasClient, self).fetch_client_url(domain_name=domain_name)
@@ -179,7 +179,7 @@ class CustomSaasClient(models.Model):
                         _logger.info("HOST SERER %r   DB SERVER  %r"%(host_server,db_server))
                         response = client.main(obj.database_name, obj.container_port, host_server, tools.misc.file_path('odoo_saas_kit'), from_drop_db=True, version=obj.saas_contract_id.odoo_version_id.code or '19.0')
                         if not response['db_drop']:
-                            raise UserError("ERROR: Couldn't Drop Client Database. Please Try Again Later.\n\nOperation\tStatus\n\nDrop database: \t{}\n".format(response['db_drop']))
+                            raise UserError(_("ERROR: Couldn't Drop Client Database. Please Try Again Later.\n\nOperation\tStatus\n\nDrop database: \t{}\n").format(response['db_drop']))
                         else:
                             obj.is_drop_db = True
                             if obj.is_drop_container:
@@ -198,7 +198,7 @@ class CustomSaasClient(models.Model):
                     _logger.info("HOST SERER %r   DB SERVER  %r"%(host_server,db_server))
                     response = client.main(obj.database_name, obj.container_port, host_server, tools.misc.file_path('odoo_saas_kit'), container_id=obj.container_id, db_server=db_server, from_drop_container=True, version=obj.saas_contract_id.odoo_version_id.code or '19.0')
                     if not response['drop_container'] or not response['delete_nginx_vhost'] or not response['delete_data_dir']:
-                        raise UserError("ERROR: Couldn't Drop Client Container. Please Try Again Later.\n\nOperation\tStatus\n\nDelete Domain Mapping: \t{}\nDelete Data Directory: \t{}".format(response['drop_container'], response['delete_nginx_vhost']))
+                        raise UserError(_("ERROR: Couldn't Drop Client Container. Please Try Again Later.\n\nOperation\tStatus\n\nDelete Domain Mapping: \t{}\nDelete Data Directory: \t{}").format(response['drop_container'], response['delete_nginx_vhost']))
                     else:
                         obj.is_drop_container = True
                         if obj.is_drop_db:
@@ -241,7 +241,7 @@ class CustomSaasClient(models.Model):
                     self.print_logs('info', 'calling client.main rebuld script', 365)
                     if not response['status']:
                         obj.rebuild_cmd = response.get('rebuild_cmd', None)
-                        raise UserError(f"ERROR: Couldn't Rebuld Client Container. \n Manual Rebuild command : {response.get('rebuild_cmd', None)}")
+                        raise UserError(_("ERROR: Couldn't Rebuld Client Container. \n Manual Rebuild command : %s") % response.get('rebuild_cmd', None))
                     else:
                         obj.last_rebuild_status = True
                         obj.state = 'started'
@@ -252,7 +252,7 @@ class CustomSaasClient(models.Model):
                 except Exception as e:
                     raise UserError(f"{e}")
             else:
-                raise UserError("Please stop Saas Client first!!")
+                raise UserError(_("Please stop Saas Client first!!"))
 
 
 class CustomModuleStatus(models.Model):
@@ -263,7 +263,7 @@ class CustomModuleStatus(models.Model):
     def unlink(self):
         for record in self:
             if record.status =="installed":
-                raise UserError("Can't remove this moudle as this is installed")
+                raise UserError(_("Can't remove this moudle as this is installed"))
             else:
                 rec1 = record.client_id.saas_contract_id.saas_module_ids.filtered(lambda rec: rec.id == record.module_id.id)
                 record.client_id.saas_contract_id.saas_module_ids = record.client_id.saas_contract_id.saas_module_ids.filtered(lambda rec: rec.id != rec1.id)

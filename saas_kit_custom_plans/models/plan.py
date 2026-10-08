@@ -70,9 +70,9 @@ class SaasPlanCustomPlan(models.Model):
         
         for obj in self:
             if not obj.db_template:
-                raise UserError("Please select the DB template name first.")
+                raise UserError(_("Please select the DB template name first."))
             if re.match("^template_",obj.db_template):
-                raise UserError("Couldn't Create DB. Please try again with some other Template Name!")
+                raise UserError(_("Couldn't Create DB. Please try again with some other Template Name!"))
             db_template_name = "template_{}".format(obj.db_template)
             config_path = tools.misc.file_path('odoo_saas_kit')
             status_module = obj.create_status_modules()
@@ -123,9 +123,9 @@ class SaasPlanCustomPlan(models.Model):
                         if msg:
                             raise UserError(msg)
                         else:
-                            raise UserError("Unknown Error. Please try again later with some different Template Name")
+                            raise UserError(_("Unknown Error. Please try again later with some different Template Name"))
                 else:
-                    raise UserError("No Response. Please try again later with some different Template Name")
+                    raise UserError(_("No Response. Please try again later with some different Template Name"))
 
 
     def login_to_db_template(self):
@@ -157,7 +157,7 @@ class SaasPlanCustomPlan(models.Model):
                     'target': 'new',
                 }
             else:
-                raise UserError("ERR001: "+str(response.get('message')))
+                raise UserError(_("ERR001: %s") % response.get("message"))
 
 
     def install_remaining_modules(self,modules=[],installable_modules=None):
@@ -191,15 +191,15 @@ class SaasPlanCustomPlan(models.Model):
                             module.status="installed"
                             module.error_message = ""
                         else:
-                            module.error_message = "Error: " + response['modules_missed'][module.technical_name]
+                            module.error_message = _("Error: %s") % response['modules_missed'][module.technical_name]
                         if not self.get_installable_modules():
                             self.is_all_installed=True
                         self.env.cr.commit()
                     if response.get('modules_installation', False):
                         self.state = 'confirm'
                     else:
-                        raise UserError("Some Modules are not insatlled Please check Error tab")
+                        raise UserError(_("Some Modules are not insatlled Please check Error tab"))
                 else:
-                    raise UserError("No Response. Please try again later")
+                    raise UserError(_("No Response. Please try again later"))
         else:
-            raise UserError("Details Not found !")
+            raise UserError(_("Details Not found !"))

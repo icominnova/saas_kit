@@ -7,7 +7,7 @@
 # 
 #################################################################################
 
-from odoo import fields, api, models
+from odoo import fields, api, models, _
 from odoo.exceptions import UserError
 
 import logging
@@ -54,7 +54,7 @@ class SaasConfig(models.TransientModel):
     def check_discount(self):
         _logger.info("------------in constraint-------------")
         if self.discount_percent>100.00:
-            raise UserError('Discount cannot be more than 100%')
+            raise UserError(_('Discount cannot be more than 100%'))
 
     def set_values(self):
         super(SaasConfig, self).set_values()

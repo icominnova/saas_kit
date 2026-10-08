@@ -7,7 +7,7 @@
 # 
 #################################################################################
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import UserError
 import logging
@@ -30,7 +30,7 @@ class CustomContractCreation(models.TransientModel):
             if obj.per_user_pricing:
                 obj.user_billing = obj.saas_users * obj.user_cost * obj.total_cycles
                 if obj.saas_users < obj.min_users and obj.max_users != -1 and obj.saas_users > obj.max_users:
-                    raise UserError("Please select number of users in limit {} - {}".format(obj.min_users, obj.max_users))
+                    raise UserError(_("Please select number of users in limit {} - {}").format(obj.min_users, obj.max_users))
             obj.total_cost = obj.contract_price + obj.user_billing
             server_id = None
             if not obj.plan_id.is_multi_server:

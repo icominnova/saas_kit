@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import publicWidget from "@web/legacy/js/public/public_widget";
+import { _t } from "@web/core/l10n/translation";
 
 
 /* Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) */
@@ -34,7 +35,7 @@ publicWidget.registry.saas_kit_plans = publicWidget.Widget.extend({
             this._fetch_community_plans();
         }
         else{
-            await $(".saas_plans").html(`<div class="text-center py-3">No Saas Odoo Versions Found.</div>`);
+            await $(".saas_plans").html(`<div class="text-center py-3">${_t("No Saas Odoo Versions Found.")}</div>`);
         }
     },
 

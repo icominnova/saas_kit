@@ -3,12 +3,13 @@
 import publicWidget from "@web/legacy/js/public/public_widget";
 import { rpc } from "@web/core/network/rpc";
 import { session } from "@web/session";
+import { _t } from "@web/core/l10n/translation";
 
 var number = 1;
 var total_app_value_span = 0;
 var final_cost_value_span = 0;
 var users_price = 0;
-var prev_cycle = 'Monthly';
+var prev_cycle = 'monthly';
 var remove_button = false;
 var apps = new Array();
 var temp_apps = new Array();
@@ -18,7 +19,7 @@ var max_no_users=false;
 var annual_discount= false;
 var discount_percent= 0;
 var discount_value_span= 0;
-    
+
 publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
     selector: '.custom_plan_section',
 
@@ -26,7 +27,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
         'click #toggle_input': '_onToggleCategoryView',
         'click  .select_button' : '_onSelectApp',
         'mouseenter .selected_button' : '_onEnterSelectedButton',
-        'mouseleave .remove_button' : '_onLeaveRemoveButton',      
+        'mouseleave .remove_button' : '_onLeaveRemoveButton',
         'click  .remove_button' : '_onClickRemoveButton',
         'click   #view_more_apps': '_onClickMoreApps',
         'click  .remove_app_button': '_onClickRemoveAppButton',
@@ -110,7 +111,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
         }
         else{
             $.get("/show/normal/view", { 'version_code': version_code
-            }).then(function(data){ 
+            }).then(function(data){
                 $('#category_view_main_div').replaceWith(data);
                 self._toggle_selected_apps();
             });
@@ -123,7 +124,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
         var version_code = $(event.target).attr('data-code');
         $('#dropdownmenu2').text(version_name);
         $('#dropdownmenu2').attr('data-code', version_code);
-        
+
         if ($('#toggle_input').is(':checked')){
             console.log("IN redirect cat ver");
             rpc("/custom/version/categ", {
@@ -152,7 +153,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
 
 
     },
-    
+
     update_costing_view : function(price_1){
         var self=this;
         total_app_value_span = total_app_value_span + price_1;
@@ -168,26 +169,27 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
 
     _onSelectBilling : function(event){
         var self=this;
-        var billing_type = $(event.target).text();
-        $('#dropdownmenu3').text(billing_type);
+        var billing_type = $(event.target).attr('data-code');
+        var billing_label = $(event.target).text();
+        $('#dropdownmenu3').attr('data-code', billing_type).text(billing_label);
         this.orm.call('saas.odoo.version','get_default_saas_values',[])
         .then(function(data){
-            if (billing_type == 'Monthly'){
+            if (billing_type == 'monthly'){
                 number = 1;
-                if (prev_cycle == 'Yearly'){
+                if (prev_cycle == 'yearly'){
                     total_app_value_span = total_app_value_span / 12;
                 }
-                prev_cycle = 'Monthly';
+                prev_cycle = 'monthly';
                 $('#discount').css('display', 'none');
             }
             else{
                 number = 12;
                 annual_discount=data['annual_discount'];
-                discount_percent=data['discount_percent'];    
-                if (prev_cycle == 'Monthly'){
+                discount_percent=data['discount_percent'];
+                if (prev_cycle == 'monthly'){
                     total_app_value_span = total_app_value_span * 12;
                 }
-                prev_cycle = 'Yearly';
+                prev_cycle = 'yearly';
                 $('#discount').css('display', 'flex');
             }
             if (data['is_users']){
@@ -201,11 +203,11 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
                     }else{
                         users_price = users * user_cost;
                     }
-                    users_price = users_price * number;    
+                    users_price = users_price * number;
                     $('#user_price_span').text(user_cost.toString()+' ');
-                    $('#total_users_value_span').text(users_price.toString()+' ');    
+                    $('#total_users_value_span').text(users_price.toString()+' ');
                 }
-            
+
             final_cost_value_span = total_app_value_span + users_price;
             self._check_discount();
             $('#total_app_value_span').text(total_app_value_span.toString()+' ');
@@ -219,9 +221,9 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
     change_app_card: function(ev){
         $(ev.currentTarget).closest('.select_button_div').find('.select_button').css('display', 'none');
         $(ev.currentTarget).closest('.select_button_div').find('.selected_button').css('display', 'inline');
-        $(ev.currentTarget).closest('.app_card').css({'background-color': '#3AADAA;', 'border': '1px solid #3AADAA'});            
-        $(ev.currentTarget).closest('.col-8').find('.app_name').css({'color': '#FFFFFF;'});            
-        $(ev.currentTarget).closest('.col-8').find('.span_price').css({'color': '#FFFFFF;'});       
+        $(ev.currentTarget).closest('.app_card').css({'background-color': '#3AADAA;', 'border': '1px solid #3AADAA'});
+        $(ev.currentTarget).closest('.col-8').find('.app_name').css({'color': '#FFFFFF;'});
+        $(ev.currentTarget).closest('.col-8').find('.span_price').css({'color': '#FFFFFF;'});
         $(ev.currentTarget).closest('.col-8').find('.price').css({'color': '#FFFFFF;'});
     },
 
@@ -229,7 +231,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
         var total_count = $('#total_apps_count').text();
         total_count = parseInt(total_count);
         total_count = total_count + 1;
-        if (total_count < 10){ 
+        if (total_count < 10){
             $('#total_apps_count').text('0'+total_count.toString());
         }else{
             $('#total_apps_count').text(total_count.toString());
@@ -270,7 +272,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
             '<div class="nodes">'+
             '</div>'+
             '<div class="node_head">'+
-            '</div>'+ 
+            '</div>'+
             '<div class="app_name_detail">'+name+'</div>'+
             '<div class="app_price"> ';
         if(currency_position == 'before'){
@@ -282,7 +284,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
         prepend_div+='</div>'+
             '<div class="remove_button_div">'+
                 '<button class="remove_app_button">'+
-                    'REMOVE'+
+                    _t("REMOVE")+
                 '</button>'+
             '</div>'+
         '</div>';
@@ -294,7 +296,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
         $('#error_message').hide();
         var self = this;
         if (session.is_public){
-            alert("Please login First to Continue !");
+            alert(_t("Please login First to Continue !"));
             return;
         }
 
@@ -324,7 +326,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
                 $('#apps_complete_details').hide();
                 self.set_total_count(ev);
                 self.change_app_card(ev);
-                self.update_side_portal_height(true);        
+                self.update_side_portal_height(true);
                 self.update_costing_view(price_1);
                 self.add_side_bar_app(technical_name, name, price, currency, currency_position);
                 apps.push(technical_name);
@@ -351,7 +353,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
         var total_count = $('#total_apps_count').text();
         total_count = parseInt(total_count);
         total_count = total_count - 1;
-        if (total_count < 10){ 
+        if (total_count < 10){
             $('#total_apps_count').text('0'+total_count.toString());
         }else{
             $('#total_apps_count').text(total_count.toString());
@@ -365,7 +367,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
         $(ev.currentTarget).closest('.select_button_div').find('.select_button').css('display', 'inline');
         $(ev.currentTarget).closest('.app_card').css({'background-color': '#FFFFFF;', 'border': '1px solid #CCCCC'});
         $(ev.currentTarget).closest('.app_card').css('border', '1px solid #CCCCCC');
-        $(ev.currentTarget).closest('.col-8').find('.app_name').css({'color': '#000000;'});          
+        $(ev.currentTarget).closest('.col-8').find('.app_name').css({'color': '#000000;'});
         $(ev.currentTarget).closest('.col-8').find('.price').css({'color': '#000000;'});
         $(ev.currentTarget).closest('.col-8').find('.span_price').css({'color': '#000000;'});
     },
@@ -379,9 +381,9 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
         var technical_name = $(ev.currentTarget).closest('.app_card').find('.app_tech_name').text();
         $('#'+technical_name).remove();
         $('#'+technical_name+'_node').remove();
-        
+
         self.update_side_portal_height(false)
-        
+
         var price = price_dict[technical_name]
         price = price * number;
         total_app_value_span = total_app_value_span - price;
@@ -418,9 +420,9 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
         var technical_name = $(ev.currentTarget).closest('.apps_name_head').attr('id');
         self.remove_app_card(technical_name)
         self.update_side_portal_height(false)
-        
+
         var price = price_dict[technical_name]
-        
+
         price = price * number;
         total_app_value_span = total_app_value_span - price;
 
@@ -430,7 +432,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
         $('#discount_value_span').text(discount_value_span.toString()+' ');
         $('#final_cost_value_span').text(final_cost_value_span.toString()+' ');
         $('#pay_now_value_span').text(final_cost_value_span.toString()+' ');
-        
+
         apps.splice($.inArray(technical_name, apps), 1);
     },
 
@@ -440,14 +442,14 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
         $('#apps_complete_details').attr('style', 'visiblity: visible');
         $('#apps_complete_details').attr('style', 'height: auto');
     },
-    
+
     _onChangeUsers : function(e){
 
 
         var self = this;
         var users = $('#number_of_users').val();
         if (max_users !== 0 && users == max_users+1){
-            alert("You cannot add more users.\nMaximum number of user reached!");
+            alert(_t("You cannot add more users.\nMaximum number of user reached!"));
             $('#number_of_users').val(max_users);
             return;
         }
@@ -457,11 +459,11 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
             if(max_users ==0){
                 max_users = data['max_users'];
                 if (users == max_users+1){
-                    alert("You cannot add more users.\nMaximum number of user reached!");
+                    alert(_t("You cannot add more users.\nMaximum number of user reached!"));
                     $('#number_of_users').val(max_users);
                     return;
                 }
-            }   
+            }
 
             if (data['is_free_users']){
                 users_price = (users - data['free_users']) * user_cost;
@@ -480,22 +482,22 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
             $('#discount_value_span').text(discount_value_span.toString()+' ');
             $('#final_cost_value_span').text(final_cost_value_span.toString()+' ');
             $('#pay_now_value_span').text(final_cost_value_span.toString()+' ');
-        });            
+        });
     },
 
     _onClickBuyNow : function(ev){
         var self = this;
-        var billing_type = $('#dropdownmenu3').text().trim();
+        var billing_type = $('#dropdownmenu3').attr('data-code');
         if (! billing_type){
-            alert("Please select Billing Cycle");
+            alert(_t("Please select Billing Cycle"));
             return;
         }
         if (apps.length == 0){
-            alert("Please select Atleast one App..");
+            alert(_t("Please select Atleast one App.."));
             return;
         }
         var recurring_interval = 0;
-        if (billing_type == 'Monthly'){
+        if (billing_type == 'monthly'){
             recurring_interval = 1;
         }
         else{
@@ -507,7 +509,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
 
         var number_of_users = parseInt(users.val());
         if (users.length && ! number_of_users){
-            alert('Please Enter User to Continue');                
+            alert(_t("Please Enter User to Continue"));
         }
         this.orm.call('saas.odoo.version','get_default_saas_values',[])
         .then(function(data){
@@ -542,7 +544,7 @@ publicWidget.registry.CustomPlan = publicWidget.Widget.extend({
                     else{
                         $('#error_message').show();
                     }
-            });    
+            });
         });
     },
 });

@@ -4,6 +4,7 @@ import publicWidget from "@web/legacy/js/public/public_widget";
 // import rpc from "@web/legacy/js/core/rpc";
 // import ajax from "@web/legacy/js/core/ajax";
 import { rpc } from "@web/core/network/rpc";
+import { _t } from "@web/core/l10n/translation";
 
 
 var apps = new Array();
@@ -52,7 +53,7 @@ publicWidget.registry.CustomPlanUpdateApp = publicWidget.Widget.extend({
 
     _onAddAppSubmit : function(){
         if (apps.length == 0){
-            alert('Please Select Atleast One App to continue !')
+            alert(_t("Please Select Atleast One App to continue !"))
             return
         }
         var contract_id = parseInt($('#add_apps_submit').attr('value'));
