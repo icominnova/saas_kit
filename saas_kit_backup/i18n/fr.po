@@ -1,0 +1,779 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* saas_kit_backup
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-08 16:47+0000\n"
+"PO-Revision-Date: 2026-10-08 16:47+0000\n"
+"Last-Translator: \n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: saas_kit_backup
+#: model:mail.template,body_html:saas_kit_backup.backup_creation_template
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"                    Dear SaaS Admin, <br/>\n"
+"\n"
+"                    <p>Greetings of the Day.</p>\n"
+"                    <p>A new saas client instance backup request has been created for saas client <strong><t t-esc=\"object.name\"/></strong>.</p>\n"
+"\n"
+"                    <p>Kindly proceed with the confirmation of the Backup Process <strong><t t-esc=\"object.backup_process_id.name\"/></strong>.</p>\n"
+"\n"
+"                    <p>Thank you</p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"                    Bonjour Administrateur SaaS, <br/>\n"
+"\n"
+"                    <p>Nous vous souhaitons une excellente journée.</p>\n"
+"                    <p>Une nouvelle demande de sauvegarde d’instance cliente SaaS a été créée pour le client SaaS <strong><t t-esc=\"object.name\"/></strong>.</p>\n"
+"\n"
+"                    <p>Veuillez procéder à la confirmation du processus de sauvegarde <strong><t t-esc=\"object.backup_process_id.name\"/></strong>.</p>\n"
+"\n"
+"                    <p>Merci</p>\n"
+"                </div>\n"
+"            "
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid ""
+"<span class=\"form-check-label\" style=\"padding-left: 5%; padding-right: "
+"2%;\">Enable Retention :  </span>"
+msgstr ""
+"<span class=\"form-check-label\" style=\"padding-left: 5%; padding-right: "
+"2%;\">Activer la conservation :  </span>"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "<span style=\"opacity: 0.5;\">Backup Frequency: </span>"
+msgstr "<span style=\"opacity: 0.5;\">Fréquence de sauvegarde : </span>"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "<span style=\"opacity: 0.5;\">Current Status: </span>"
+msgstr "<span style=\"opacity: 0.5;\">Statut actuel : </span>"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid ""
+"<span style=\"padding-left: 5%; padding-right: 2%; display:inline;\">Backup "
+"Frequency </span>"
+msgstr ""
+"<span style=\"padding-left: 5%; padding-right: 2%; "
+"display:inline;\">Fréquence de sauvegarde </span>"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid ""
+"<span style=\"padding-left: 5%; padding-right: 2%; display:inline;\">Backup "
+"Starting Date and Time :  </span>"
+msgstr ""
+"<span style=\"padding-left: 5%; padding-right: 2%; display:inline;\">Date et"
+" heure de début de la sauvegarde :  </span>"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.backup_process_wizard_form_view
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "<strong>Note:</strong>"
+msgstr "<strong>Remarque :</strong>"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "ACTION"
+msgstr "ACTION"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.backup_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.backup_process_wizard_form_view
+msgid ""
+"After enabling Drop Database backup you need to set backup retention count."
+msgstr ""
+"Après avoir activé la suppression des anciennes sauvegardes de base de "
+"données, vous devez définir le nombre de sauvegardes à conserver."
+
+#. module: saas_kit_backup
+#. odoo-javascript
+#: code:addons/saas_kit_backup/static/src/js/backup_process.js:0
+msgid "Are You Sure You want to cancel the Backup Process..?"
+msgstr "Voulez-vous vraiment annuler le processus de sauvegarde ?"
+
+#. module: saas_kit_backup
+#. odoo-python
+#: code:addons/saas_kit_backup/models/saas_client.py:0
+msgid ""
+"Are you sure you want to Cancel/Delete the attach Backup Process. It will "
+"stop the future backups ?"
+msgstr ""
+"Voulez-vous vraiment annuler/supprimer le processus de sauvegarde associé ? "
+"Cela interrompra les sauvegardes futures."
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Backup"
+msgstr "Sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_client__is_crone_ignited
+msgid "Backup Attaches"
+msgstr "Sauvegarde associée"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_client__backup_details_ids
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.saas_client_backup_form_view
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.saas_server_inherit_form_view
+msgid "Backup Details"
+msgstr "Détails des sauvegardes"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__backup_format
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_client__backup_format
+msgid "Backup Format"
+msgstr "Format de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__frequency_cycle
+msgid "Backup Frequency"
+msgstr "Fréquence de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process__backup_instance
+msgid "Backup Instance"
+msgstr "Instance à sauvegarder"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__backup_location
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_client__backup_location
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_server__backup_location
+msgid "Backup Location"
+msgstr "Emplacement de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_client__backup_path
+msgid "Backup Path"
+msgstr "Chemin de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model,name:saas_kit_backup.model_backup_process
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_client__backup_process_id
+msgid "Backup Process"
+msgstr "Processus de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model,name:saas_kit_backup.model_backup_process_detail
+msgid "Backup Process Details"
+msgstr "Détails du processus de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model,name:saas_kit_backup.model_backup_process_wizard
+msgid "Backup Process Wizard"
+msgstr "Assistant du processus de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__remote_server_id
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_server__remote_server_id
+msgid "Backup Remote Server"
+msgstr "Serveur distant de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_server__retention
+msgid "Backup Retention"
+msgstr "Conservation des sauvegardes"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__retention
+msgid "Backup Retention Count"
+msgstr "Nombre de sauvegardes à conserver"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Backup Retention Count :"
+msgstr "Nombre de sauvegardes à conserver :"
+
+#. module: saas_kit_backup
+#. odoo-python
+#: code:addons/saas_kit_backup/wizard/backup_process_wizard.py:0
+msgid "Backup Retention Count should be at least 1."
+msgstr "Le nombre de sauvegardes à conserver doit être d’au moins 1."
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__backup_starting_time
+msgid "Backup Starting Date and Time"
+msgstr "Date et heure de début de la sauvegarde"
+
+#. module: saas_kit_backup
+#. odoo-python
+#: code:addons/saas_kit_backup/models/backup_process_details.py:0
+msgid "Backup doesn't exists."
+msgstr "La sauvegarde n’existe pas."
+
+#. module: saas_kit_backup
+#. odoo-python
+#: code:addons/saas_kit_backup/controllers/portal.py:0
+msgid "Backup process_id doesn't found."
+msgstr "L’identifiant du processus de sauvegarde est introuvable."
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.backup_process_wizard_form_view
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Cancel"
+msgstr "Annuler"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__cancel_backup_process__purpose__cancel_backup
+msgid "Cancel Backup"
+msgstr "Annuler la sauvegarde"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.saas_client_backup_form_view
+msgid "Cancel Backup Process"
+msgstr "Annuler le processus de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model,name:saas_kit_backup.model_cancel_backup_process
+msgid "Cancel Backup Process Wizard"
+msgstr "Assistant d’annulation du processus de sauvegarde"
+
+#. module: saas_kit_backup
+#. odoo-python
+#: code:addons/saas_kit_backup/models/backup_process_details.py:0
+msgid ""
+"Cannot download local backup file from remote saas server. Follow logs for "
+"more details."
+msgstr ""
+"Impossible de télécharger le fichier de sauvegarde local depuis le serveur "
+"SaaS distant. Consultez les journaux pour plus de détails."
+
+#. module: saas_kit_backup
+#. odoo-python
+#: code:addons/saas_kit_backup/models/backup_process_details.py:0
+msgid ""
+"Cannot download remote backup file from remote server. Follow logs for more "
+"details."
+msgstr ""
+"Impossible de télécharger le fichier de sauvegarde distant depuis le serveur"
+" distant. Consultez les journaux pour plus de détails."
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_backup_process_wizard__enable_retention
+#: model:ir.model.fields,help:saas_kit_backup.field_res_config_settings__enable_retention
+msgid "Check if you want to drop old backups stored on the server."
+msgstr ""
+"Cochez cette option si vous souhaitez supprimer les anciennes sauvegardes "
+"stockées sur le serveur."
+
+#. module: saas_kit_backup
+#: model:ir.model,name:saas_kit_backup.model_saas_client
+msgid "Class for managing SaaS Instances(Clients)"
+msgstr "Classe de gestion des instances SaaS (clients)"
+
+#. module: saas_kit_backup
+#: model:ir.model,name:saas_kit_backup.model_res_config_settings
+msgid "Class for managing global SaaS Backup settings."
+msgstr "Classe de gestion des paramètres globaux de sauvegarde SaaS."
+
+#. module: saas_kit_backup
+#: model:ir.model,name:saas_kit_backup.model_saas_server
+msgid "Class for managing server types for deploying SaaS architecture"
+msgstr ""
+"Classe de gestion des types de serveurs pour le déploiement de "
+"l’architecture SaaS"
+
+#. module: saas_kit_backup
+#. odoo-python
+#: code:addons/saas_kit_backup/models/saas_client.py:0
+#: model:ir.actions.act_window,name:saas_kit_backup.backup_process_cancel_wizard
+msgid "Confirmation"
+msgstr "Confirmation"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_backup_process_wizard__retention
+#: model:ir.model.fields,help:saas_kit_backup.field_res_config_settings__backup_retention_count
+msgid ""
+"Count of recent backups that will be retained after dropping old backups on "
+"server."
+msgstr ""
+"Nombre de sauvegardes récentes qui seront conservées après la suppression "
+"des anciennes sauvegardes sur le serveur."
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.backup_process_wizard_form_view
+msgid "Create"
+msgstr "Créer"
+
+#. module: saas_kit_backup
+#: model:ir.actions.act_window,name:saas_kit_backup.backup_process_wizard_action
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.saas_client_backup_form_view
+msgid "Create Backup Process"
+msgstr "Créer un processus de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__create_uid
+#: model:ir.model.fields,field_description:saas_kit_backup.field_cancel_backup_process__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__create_date
+#: model:ir.model.fields,field_description:saas_kit_backup.field_cancel_backup_process__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_client__crone_state
+msgid "Crone state"
+msgstr "État de la tâche planifiée"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_saas_client__crone_state
+msgid "Current state of the backup process."
+msgstr "État actuel du processus de sauvegarde."
+
+#. module: saas_kit_backup
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__backup_process_wizard__frequency_cycle__daily
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Daily"
+msgstr "Quotidien"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Database Backup Retention is enabled by Admin."
+msgstr ""
+"La conservation des sauvegardes de base de données est activée par "
+"l’administrateur."
+
+#. module: saas_kit_backup
+#. odoo-python
+#: code:addons/saas_kit_backup/models/backup_process.py:0
+msgid ""
+"Database backup dropped successfully at %s after retention from remote saas "
+"server."
+msgstr ""
+"La sauvegarde de la base de données a été supprimée avec succès à %s "
+"conformément à la politique de conservation sur le serveur SaaS distant."
+
+#. module: saas_kit_backup
+#. odoo-python
+#: code:addons/saas_kit_backup/models/backup_process.py:0
+msgid "Database backup file doesn't exists on remote saas server."
+msgstr ""
+"Le fichier de sauvegarde de la base de données n’existe pas sur le serveur "
+"SaaS distant."
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_res_config_settings__backup_retention_count
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.backup_config_settings_view_form
+msgid "Default Backup Retention Count"
+msgstr "Nombre de sauvegardes à conserver par défaut"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.backup_config_settings_view_form
+msgid "Default Configuration for Saas Kit Backup"
+msgstr "Configuration par défaut de la sauvegarde SaaS"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_server__def_backup_dir
+msgid "Default Remote Backup Directory"
+msgstr "Répertoire distant de sauvegarde par défaut"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.saas_client_backup_form_view
+msgid "Delete"
+msgstr "Supprimer"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_saas_client__backup_details_ids
+msgid "Details of the database backups that has been created."
+msgstr "Détails des sauvegardes de base de données qui ont été créées."
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process__display_name
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_detail__display_name
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__display_name
+#: model:ir.model.fields,field_description:saas_kit_backup.field_cancel_backup_process__display_name
+#: model:ir.model.fields,field_description:saas_kit_backup.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_client__display_name
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_server__display_name
+msgid "Display Name"
+msgstr "Nom d'affichage"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.saas_client_backup_form_view
+msgid "Download"
+msgstr "Télécharger"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__enable_retention
+msgid "Drop Old Backups"
+msgstr "Supprimer les anciennes sauvegardes"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_res_config_settings__enable_retention
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.backup_config_settings_view_form
+msgid "Enable Retention"
+msgstr "Activer la conservation"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Enter Backup Process Details"
+msgstr "Saisissez les détails du processus de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__frequency
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_client__frequency
+msgid "Frequency"
+msgstr "Fréquence"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_client__frequency_cycle
+msgid "Frequency Cycle"
+msgstr "Cycle de fréquence"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_saas_client__frequency
+msgid "Frequency for backuping the database."
+msgstr "Fréquence de sauvegarde de la base de données."
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process__id
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_detail__id
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__id
+#: model:ir.model.fields,field_description:saas_kit_backup.field_cancel_backup_process__id
+#: model:ir.model.fields,field_description:saas_kit_backup.field_res_config_settings__id
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_client__id
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_server__id
+msgid "ID"
+msgstr "ID"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_backup_process__backup_instance
+msgid "Instance whose backup process needs to be created."
+msgstr "Instance pour laquelle le processus de sauvegarde doit être créé."
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__write_uid
+#: model:ir.model.fields,field_description:saas_kit_backup.field_cancel_backup_process__write_uid
+msgid "Last Updated by"
+msgstr "Mis à jour par"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__write_date
+#: model:ir.model.fields,field_description:saas_kit_backup.field_cancel_backup_process__write_date
+msgid "Last Updated on"
+msgstr "Mis à jour le"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process__saas_client_id
+msgid "Linked Client"
+msgstr "Client associé"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__backup_process_wizard__backup_location__local
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__saas_server__backup_location__local
+msgid "Local"
+msgstr "Local"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__backup_process_wizard__frequency_cycle__monthly
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Monthly"
+msgstr "Mensuel"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "NAME"
+msgstr "NOM"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__name
+#: model:ir.model.fields,field_description:saas_kit_backup.field_cancel_backup_process__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.backup_process_cancel_wizard_form_view
+msgid "No"
+msgstr "Non"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "No Backup Created yet!"
+msgstr "Aucune sauvegarde créée pour le moment !"
+
+#. module: saas_kit_backup
+#. odoo-python
+#: code:addons/saas_kit_backup/wizard/backup_process_wizard.py:0
+msgid ""
+"No validated remote servers found. Please configure a remote server first!!"
+msgstr ""
+"Aucun serveur distant validé n’a été trouvé. Veuillez d’abord configurer un "
+"serveur distant !"
+
+#. module: saas_kit_backup
+#. odoo-javascript
+#: code:addons/saas_kit_backup/static/src/js/backup_process.js:0
+msgid "Please Enter Starting Date and Time..."
+msgstr "Veuillez saisir la date et l’heure de début..."
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Process Cancelled"
+msgstr "Processus annulé"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Process Created"
+msgstr "Processus créé"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Process Running"
+msgstr "Processus en cours"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_cancel_backup_process__purpose
+msgid "Purpose"
+msgstr "But"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_cancel_backup_process__record_id
+msgid "Record Id"
+msgstr "ID de l’enregistrement"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_server__backup_sftp_host
+msgid "Remote SFTP Host"
+msgstr "Hôte SFTP distant"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_server__backup_sftp_port
+msgid "Remote SFTP Port"
+msgstr "Port SFTP distant"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__backup_process_wizard__backup_location__remote
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__saas_server__backup_location__remote
+msgid "Remote Server"
+msgstr "Serveur distant"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_server__backup_sftp_password
+msgid "SFTP Password"
+msgstr "Mot de passe SFTP"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_saas_server__backup_sftp_user
+msgid "SFTP User"
+msgstr "Utilisateur SFTP"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_saas_server__backup_sftp_host
+msgid "SFTP host for establishing connection to the backup remote server"
+msgstr ""
+"Hôte SFTP utilisé pour établir la connexion au serveur distant de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_saas_server__backup_sftp_password
+msgid "SFTP password for establishing connection to the backup remote server"
+msgstr ""
+"Mot de passe SFTP utilisé pour établir la connexion au serveur distant de "
+"sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_saas_server__backup_sftp_port
+msgid "SFTP port for establishing connection to the backup remote server"
+msgstr ""
+"Port SFTP utilisé pour établir la connexion au serveur distant de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_saas_server__backup_sftp_user
+msgid "SFTP user for establishing connection to the backup remote server"
+msgstr ""
+"Utilisateur SFTP utilisé pour établir la connexion au serveur distant de "
+"sauvegarde"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "STATUS"
+msgstr "STATUT"
+
+#. module: saas_kit_backup
+#: model:mail.template,name:saas_kit_backup.backup_creation_template
+msgid "SaaS Backup Creation Mail"
+msgstr "E-mail de création de sauvegarde SaaS"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__backup_process__backup_instance__saas_client
+msgid "SaaS Client"
+msgstr "Client SaaS"
+
+#. module: saas_kit_backup
+#: model:mail.template,subject:saas_kit_backup.backup_creation_template
+msgid "SaaS Client Backup Process Creation"
+msgstr "Création du processus de sauvegarde du client SaaS"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_detail__saas_client_id
+msgid "Saas Client"
+msgstr "Client SaaS"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_saas_client__frequency_cycle
+msgid "Select frequency cycle of Database Backup."
+msgstr ""
+"Sélectionnez le cycle de fréquence de sauvegarde de la base de données."
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_backup_process_wizard__backup_format
+#: model:ir.model.fields,help:saas_kit_backup.field_saas_client__backup_format
+msgid "Select the file format of the data backup file."
+msgstr "Sélectionnez le format du fichier de sauvegarde des données."
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_backup_process__saas_client_id
+#: model:ir.model.fields,help:saas_kit_backup.field_backup_process_detail__saas_client_id
+msgid "Select the saas client instances that are started"
+msgstr "Sélectionnez les instances clientes SaaS démarrées."
+
+#. module: saas_kit_backup
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__backup_process__backup_instance__self
+msgid "Self"
+msgstr "Self"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_backup_process_wizard__backup_location
+#: model:ir.model.fields,help:saas_kit_backup.field_saas_client__backup_location
+msgid "Server where the backup file will be stored."
+msgstr "Serveur sur lequel le fichier de sauvegarde sera stocké."
+
+#. module: saas_kit_backup
+#. odoo-python
+#: code:addons/saas_kit_backup/models/saas_client.py:0
+msgid "Something went wrong. Kindly contact admin."
+msgstr "Une erreur s’est produite. Veuillez contacter l’administrateur."
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,field_description:saas_kit_backup.field_backup_process_wizard__storage_path
+msgid "Storage Path"
+msgstr "Chemin de stockage"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Submit"
+msgstr "Soumettre"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "TIME"
+msgstr "HEURE"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.saas_server_inherit_form_view
+msgid "Test Connection"
+msgstr "Test de connexion"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid ""
+"The Backup Retention Count is the number of backups that will be "
+"kept/retained."
+msgstr ""
+"Le nombre de sauvegardes à conserver correspond au nombre de sauvegardes qui"
+" seront maintenues."
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.backup_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.backup_process_wizard_form_view
+msgid "The Backup Retention Count is the number of backups you wish to keep."
+msgstr ""
+"Le nombre de sauvegardes à conserver correspond au nombre de sauvegardes que"
+" vous souhaitez garder."
+
+#. module: saas_kit_backup
+#. odoo-python
+#: code:addons/saas_kit_backup/models/backup_process.py:0
+msgid ""
+"The chosen saas client has already confirmed/running backup process %s. "
+"Please choose another saas client."
+msgstr ""
+"Le client SaaS sélectionné possède déjà un processus de sauvegarde confirmé "
+"ou en cours (%s). Veuillez choisir un autre client SaaS."
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_saas_server__def_backup_dir
+msgid ""
+"The default directory path on the remote server where the backups of the "
+"saas client instances will be stored. The directory must have appropriate "
+"permissions."
+msgstr ""
+"Chemin du répertoire par défaut sur le serveur distant où seront stockées "
+"les sauvegardes des instances clientes SaaS. Le répertoire doit disposer des"
+" autorisations appropriées."
+
+#. module: saas_kit_backup
+#: model:ir.model.fields,help:saas_kit_backup.field_saas_client__backup_path
+msgid "The directory path where the backup files will be stored on server."
+msgstr ""
+"Chemin du répertoire dans lequel les fichiers de sauvegarde seront stockés "
+"sur le serveur."
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Twice a Day"
+msgstr "Deux fois par jour"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__backup_process_wizard__frequency_cycle__half_day
+msgid "Twice a day"
+msgstr "Deux fois par jour"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.backup_process_wizard_form_view
+msgid "Update"
+msgstr "Mettre à jour"
+
+#. module: saas_kit_backup
+#. odoo-python
+#: code:addons/saas_kit_backup/models/saas_client.py:0
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.saas_client_backup_form_view
+msgid "Update Backup Process"
+msgstr "Mettre à jour le processus de sauvegarde"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__backup_process_wizard__frequency_cycle__weekly
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Weekly"
+msgstr "Hebdomadaire"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__backup_process_wizard__frequency_cycle__yearly
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.contract_portal_page_inherit
+msgid "Yearly"
+msgstr "Annuel"
+
+#. module: saas_kit_backup
+#: model_terms:ir.ui.view,arch_db:saas_kit_backup.backup_process_cancel_wizard_form_view
+msgid "Yes"
+msgstr "Oui"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__backup_process_wizard__backup_format__dump
+msgid "pg_dump custom format (without filestore)"
+msgstr "Format personnalisé pg_dump (sans filestore)"
+
+#. module: saas_kit_backup
+#: model:ir.model.fields.selection,name:saas_kit_backup.selection__backup_process_wizard__backup_format__zip
+msgid "zip (includes filestore)"
+msgstr "ZIP (inclut le filestore)"

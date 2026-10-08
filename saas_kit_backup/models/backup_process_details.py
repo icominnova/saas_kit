@@ -8,6 +8,7 @@
 #################################################################################
 
 import os
+from odoo import _
 from odoo import fields, api, models
 from odoo.exceptions import UserError
 from odoo.addons.wk_backup_restore.models.lib import check_connectivity
@@ -33,7 +34,7 @@ class SaasBackupProcessDetails(models.Model):
                 if self.backup_location == 'local':
                     file_get_status = self.get_saas_remote_backup_file()
                     if not file_get_status:
-                        raise UserError("Cannot download local backup file from remote saas server. Follow logs for more details.")
+                        raise UserError(_("Cannot download local backup file from remote saas server. Follow logs for more details."))
                 return self.get_saas_backup_download_url()
 
         return super(SaasBackupProcessDetails, self).download_db_file()
@@ -83,7 +84,7 @@ class SaasBackupProcessDetails(models.Model):
                 backup_file_path = self.backup_process_id.remote_server_id.temp_backup_dir+"/"+self.file_name
                 download_url = f"/backupfile/download?path={backup_file_path}&backup_location=remote"
             else:
-                raise UserError("Cannot download remote backup file from remote server. Follow logs for more details.")
+                raise UserError(_("Cannot download remote backup file from remote server. Follow logs for more details."))
             
         if self.status == "Success" and os.path.exists(backup_file_path):
             return  {
@@ -92,4 +93,4 @@ class SaasBackupProcessDetails(models.Model):
                         'target': 'new',
                     }
         else:
-            raise UserError("Backup doesn't exists.")
+            raise UserError(_("Backup doesn't exists."))

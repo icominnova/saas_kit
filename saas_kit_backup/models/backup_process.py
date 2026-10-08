@@ -10,6 +10,7 @@
 import os
 from datetime import datetime
 import paramiko
+from odoo import _
 from odoo import fields, api, models, tools
 from odoo.exceptions import UserError
 from odoo.tools.config import config
@@ -103,7 +104,7 @@ class SaasBackupProcess(models.Model):
                 confirmed_saas_backup = saas_backup.filtered(lambda b:b.state in ['confirm', 'running'])
                 draft_saas_backup = saas_backup.filtered(lambda b:b.state in ['draft'])
                 if confirmed_saas_backup:
-                    raise UserError("The chosen saas client has already confirmed/running backup process " + saas_backup.name + ". Please choose another saas client.")
+                    raise UserError(_("The chosen saas client has already confirmed/running backup process %s. Please choose another saas client.") % saas_backup.name)
                 draft_saas_backup.saas_client_id = None
                 rec.storage_path = rec.saas_client_id.container_path
                 rec.db_name = rec.saas_client_id.database_name
@@ -189,11 +190,11 @@ class SaasBackupProcess(models.Model):
                     sftp = ssh_obj.open_sftp()
                     sftp.remove(bkp_details_id.url)
                     sftp.close()
-                    msg = 'Database backup dropped successfully  at ' + datetime.now().strftime("%m-%d-%Y-%H:%M:%S") + " after retention from remote saas server."
+                    msg = _("Database backup dropped successfully at %s after retention from remote saas server.") % datetime.now().strftime("%m-%d-%Y-%H:%M:%S")
                     bkp_details_id.message = msg
                     bkp_details_id.status = "Dropped"
                 else:
-                    msg = "Database backup file doesn't exists on remote saas server."
+                    msg = _("Database backup file doesn't exists on remote saas server.")
                     bkp_details_id.message = msg
                     bkp_details_id.status = "Failure"
                 return msg

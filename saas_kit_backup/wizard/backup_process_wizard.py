@@ -6,6 +6,7 @@
 #    If not, see <https://store.webkul.com/license.html/>
 #################################################################################
 
+from odoo import _
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 
@@ -66,7 +67,7 @@ class CreateBackupProcess(models.TransientModel):
 
         if self.enable_retention:
             if self.retention < 1:
-                raise UserError("Backup Retention Count should be at least 1.")
+                raise UserError(_("Backup Retention Count should be at least 1."))
             
     @api.onchange('backup_location')
     def change_backup_location(self):
@@ -76,7 +77,7 @@ class CreateBackupProcess(models.TransientModel):
         if self.backup_location == 'remote':
             backup_servers = self.env['backup.remote.server'].sudo().search([('state', '=', 'validated')])
             if not backup_servers:
-                raise UserError("No validated remote servers found. Please configure a remote server first!!")
+                raise UserError(_("No validated remote servers found. Please configure a remote server first!!"))
         self.remote_server_id = None  
 
     def create_process_data(self):

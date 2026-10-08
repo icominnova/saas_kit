@@ -171,7 +171,7 @@ class SaasClientBackup(models.Model):
         Call from client record and will pop up a wizard for confirmation.
         """
         vals = dict(
-            name='Are you sure you want to Cancel/Delete the attach Backup Process. It will stop the future backups ?',
+            name=_('Are you sure you want to Cancel/Delete the attach Backup Process. It will stop the future backups ?'),
             purpose='cancel_backup',
             record_id=self.id,
         )
@@ -241,7 +241,7 @@ class SaasClientBackup(models.Model):
             else:
                 _logger.error("Cannot download remote backup file from remote server. Follow logs for more details.")
                 data['status'] = False
-                data['err_message'] = "Something went wrong. Kindly contact admin."
+                data['err_message'] = _("Something went wrong. Kindly contact admin.")
         else:
             data['download_url'] = f"/backupfile/download?path={file_path}&backup_location=local"
             saas_client = detail_id.backup_process_id.saas_client_id
@@ -251,7 +251,7 @@ class SaasClientBackup(models.Model):
                     if not file_get_status:
                         _logger.error("Cannot download remote backup file from remote server. Follow logs for more details.")
                         data['status'] = False
-                        data['err_message'] = "Something went wrong. Kindly contact admin."
+                        data['err_message'] = _("Something went wrong. Kindly contact admin.")
                     else:
                         file_path = "/tmp/"+detail_id.file_name
                         data['download_url'] = f"/backupfile/download?path={file_path}&backup_location=remote"

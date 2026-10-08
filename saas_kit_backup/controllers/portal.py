@@ -61,7 +61,7 @@ class BackupController(http.Controller):
         backup_process_id = kwargs.get('backup_process_id', False)
         if not backup_process_id:
             data['status'] = False
-            data['message'] = "Backup process_id doesn't found."
+            data['message'] = _("Backup process_id doesn't found.")
         else:
             backup_process = request.env['backup.process'].sudo().browse([int(backup_process_id)])
             remote_server = backup_process.saas_client_id.server_id

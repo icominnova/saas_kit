@@ -3,6 +3,7 @@
 import publicWidget from "@web/legacy/js/public/public_widget";
 import { rpc } from "@web/core/network/rpc";
 import { session } from "@web/session";
+import { _t } from "@web/core/l10n/translation";
 
 // var rpc = require('web.rpc');
 var update_req = false;
@@ -45,7 +46,7 @@ publicWidget.registry.BackupProcess = publicWidget.Widget.extend({
         }
         var starting_date = $('#date_time_input').val();
         if (! starting_date){
-            alert('Please Enter Starting Date and Time...')
+            alert(_t('Please Enter Starting Date and Time...'))
             return;
         }
         var client_id = parseInt($('#create_process_button').attr('value'));
@@ -60,7 +61,7 @@ publicWidget.registry.BackupProcess = publicWidget.Widget.extend({
     },
 
     async _onClickCancelBackupButton (ev){
-        var answer = confirm("Are You Sure You want to cancel the Backup Process..?");
+        var answer = confirm(_t("Are You Sure You want to cancel the Backup Process..?"));
         if (answer == true){
             var client_id = parseInt($('#cancel_backup_process').attr('value'));
             const data = await this.orm.call('saas.client','get_cancel_backup_process_call',['self', client_id])
