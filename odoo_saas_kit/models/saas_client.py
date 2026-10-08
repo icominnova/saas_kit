@@ -8,7 +8,7 @@
 #################################################################################
 
 from urllib.parse import urlparse
-from odoo import fields, models, api, tools
+from odoo import fields, models, api, tools, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.api import NewId
 from datetime import datetime
@@ -26,6 +26,34 @@ from . lib import generate_ssl_custom_domain
 from odoo.addons.odoo_saas_kit.models.lib.pg_query import PgQuery
 
 _logger = logging.getLogger(__name__)
+
+
+def _translate_custom_domain_message(message):
+    """Translate stable custom-domain errors without changing security helpers."""
+    if not isinstance(message, str):
+        return message
+
+    translations = {
+        "Unable to remove custom domain vhost":
+            _("Unable to remove custom domain vhost"),
+
+        "Custom domain removal failed":
+            _("Custom domain removal failed"),
+
+        "HTTP vhost generation failed":
+            _("HTTP vhost generation failed"),
+
+        "SSL certificate generation failed":
+            _("SSL certificate generation failed"),
+
+        "HTTPS vhost generation failed":
+            _("HTTPS vhost generation failed"),
+
+        "Custom domain configuration failed":
+            _("Custom domain configuration failed"),
+    }
+
+    return translations.get(message, message)
 
 MODULE_STATUS = [
     ('installed', "Installed"),
@@ -146,7 +174,7 @@ class SaasClient(models.Model):
         subdomain = "test."+self.server_id.server_domain
 	
         if not domain:
-            raise UserError("Please Enter a Custom Domain Name")
+            raise UserError(_("Please Enter a Custom Domain Name"))
         
         module_path = tools.misc.file_path('odoo_saas_kit')
         
@@ -155,7 +183,9 @@ class SaasClient(models.Model):
             return True
 
         else:
-            error = response.get('message')
+            error = _translate_custom_domain_message(
+                response.get('message')
+            )
             raise UserError(error)
 
     def fetch_client_url(self, domain_name=None):
@@ -170,7 +200,7 @@ class SaasClient(models.Model):
             try:
                 response = obj.create_client_instance(domain_name)
             except Exception as e:
-                raise UserError("Unable To Create Client\nERROR: {}".format(e))
+                raise UserError(_("Unable To Create Client\nERROR: {}").format(e))
             if response:
                 if obj.saas_contract_id.use_separate_domain:
                     obj.add_custom_domain(domain_name, True)
@@ -209,7 +239,7 @@ class SaasClient(models.Model):
 
                 obj.update_app_list()
             else:
-                raise UserError("Couldn't create the instance with the selected domain name. Please use some other domain name.")
+                raise UserError(_("Couldn't create the instance with the selected domain name. Please use some other domain name."))
 
     def update_app_list(self):
         if self.server_id.host_server =="self":
@@ -262,7 +292,12 @@ class SaasClient(models.Model):
                 }
             else:
                 self.print_logs('error', response.get('message'), 162)
-                raise UserError(response.get('message'))
+                raise UserError(
+                    _(
+                        "Unable to retrieve SaaS login credentials. Technical error: %s",
+                        response.get('message'),
+                    )
+                )
 
     def stop_client(self):
         for obj in self:
@@ -271,18 +306,18 @@ class SaasClient(models.Model):
             if response_flag:
                 obj.state = "stopped"
             else:
-                raise UserError("Operation Failed! Check Logs for details.")
+                raise UserError(_("Operation Failed! Check Logs for details."))
 
     def start_client(self):
         for obj in self:
             if obj.saas_contract_id.state == 'hold':
-                raise UserError("Related Contract is on Hold Please resume the contract first !")
+                raise UserError(_("Related Contract is on Hold Please resume the contract first !"))
             host_server, db_server = obj.saas_contract_id.server_id.get_server_details()
             response_flag = containers.action(operation="start",container_id=obj.container_id,host_server=host_server,db_server= db_server )
             if response_flag:
                 obj.state = "started"
             else:
-                raise UserError("Operation Failed! Check Logs for details.")
+                raise UserError(_("Operation Failed! Check Logs for details."))
 
     def restart_client(self):
         for obj in self:
@@ -291,7 +326,7 @@ class SaasClient(models.Model):
             if response_flag:
                 obj.state = "started"
             else:
-                raise UserError("Operation Failed! Check Logs for details.")
+                raise UserError(_("Operation Failed! Check Logs for details."))
 
     @api.model_create_multi
     def create(self, val_list):
@@ -307,7 +342,7 @@ class SaasClient(models.Model):
             initial_module_name_list.append(rec.module_id.name)
         if vals.get('active')==False:
             if self.state != 'cancel':
-                raise UserError("Please cancel the active client before archiving it.")
+                raise UserError(_("Please cancel the active client before archiving it."))
         result =  super(SaasClient, self).write(vals)
         final_list = self.saas_module_ids
         final_module_name_list =[]
@@ -326,14 +361,14 @@ class SaasClient(models.Model):
             if obj.state in ['stopped', 'draft']:
                 obj.state = 'inactive'
             else:
-                raise UserError("Can't Inactive a Running Client") 
+                raise UserError(_("Can't Inactive a Running Client"))
 
     def unlink(self):
        for obj in self:
           if obj.state == 'cancel':
               res = super(SaasClient, obj).unlink()
           else:
-              raise UserError("Can't Delete Instances")
+              raise UserError(_("Can't Delete Instances"))
        return res
 
     def drop_db(self):
@@ -345,7 +380,7 @@ class SaasClient(models.Model):
                     self.print_logs('info', 'calling client.main script', 216)
                     response = client.main(obj.database_name, obj.container_port, host_server, tools.misc.file_path('odoo_saas_kit'), from_drop_db=True)
                     if not response['db_drop']:
-                        raise UserError("ERROR: Couldn't Drop Client Database. Please Try Again Later.\n\nOperation\tStatus\n\nDrop database: \t{}\n".format(response['db_drop']))
+                        raise UserError(_("ERROR: Couldn't Drop Client Database. Please Try Again Later.\n\nOperation\tStatus\n\nDrop database: \t{}\n").format(response['db_drop']))
                     else:
                         obj.is_drop_db = True
                         if obj.is_drop_container:
@@ -363,7 +398,7 @@ class SaasClient(models.Model):
                 try:
                     response = client.main(obj.database_name, obj.container_port, host_server, tools.misc.file_path('odoo_saas_kit'), container_id=obj.container_id, db_server=db_server, from_drop_container=True)
                     if not response['drop_container'] or not response['delete_nginx_vhost'] or not response['delete_data_dir']:
-                        raise UserError("ERROR: Couldn't Drop Client Container. Please Try Again Later.\n\nOperation\tStatus\n\nDelete Domain Mapping: \t{}\nDelete Data Directory: \t{}".format(response['drop_container'], response['delete_nginx_vhost']))
+                        raise UserError(_("ERROR: Couldn't Drop Client Container. Please Try Again Later.\n\nOperation\tStatus\n\nDelete Domain Mapping: \t{}\nDelete Data Directory: \t{}").format(response['drop_container'], response['delete_nginx_vhost']))
                     else:
                         obj.is_drop_container = True
                         if obj.is_drop_db:
@@ -381,15 +416,15 @@ class SaasClient(models.Model):
         for obj in self:
             if obj.state == 'inactive':
                 if not obj.is_drop_db:
-                    raise UserError("Please Drop DB to cancel the client.")
+                    raise UserError(_("Please Drop DB to cancel the client."))
                 if not obj.is_drop_container:
-                    raise UserError("Please Drop Container to cancel the client.")
+                    raise UserError(_("Please Drop Container to cancel the client."))
                 else:
                     obj.state = 'cancel'
             elif obj.state == 'draft':
                 obj.state='cancel'                
             else:
-                raise UserError('Please Inactive the Client first to cancel !')
+                raise UserError(_('Please Inactive the Client first to cancel !'))
             
     def rebuild_client(self):
         for obj in self:
@@ -415,7 +450,7 @@ class SaasClient(models.Model):
 
                     if not response['status']:
                         obj.rebuild_cmd = response.get('rebuild_cmd', None)
-                        raise UserError(f"ERROR: Couldn't Rebuld Client Container. \n Manual Rebuild command : {response.get('rebuild_cmd', None)}")
+                        raise UserError(_("ERROR: Couldn't Rebuld Client Container. \n Manual Rebuild command : %s", response.get('rebuild_cmd', None)))
                     else:
                         obj.last_rebuild_status = True
                         obj.state = 'started'
@@ -426,4 +461,4 @@ class SaasClient(models.Model):
                 except Exception as e:
                     raise UserError(f"{e}")
             else:
-                raise UserError("Please stop Saas Client first!!")
+                raise UserError(_("Please stop Saas Client first!!"))

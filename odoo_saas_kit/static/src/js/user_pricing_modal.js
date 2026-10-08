@@ -3,6 +3,7 @@
 import publicWidget from "@web/legacy/js/public/public_widget";
 import { session } from "@web/session";
 import { rpc } from "@web/core/network/rpc";
+import { _t } from "@web/core/l10n/translation";
 
 publicWidget.registry.SaasUserModel = publicWidget.Widget.extend({
     selector: '.users_no_div',
@@ -17,7 +18,7 @@ publicWidget.registry.SaasUserModel = publicWidget.Widget.extend({
         
     _onClickModalTarget:function(){
         if (session.is_public){
-            alert("Please login First to Continue !");
+            alert(_t("Please login First to Continue !"));
             return;
         }
         var min_users = parseInt($('#min_user')).text;
@@ -56,10 +57,10 @@ publicWidget.registry.SaasUserCount = publicWidget.Widget.extend({
         var new_user = parseInt($('#new_min_user').val());
         var product_id = parseInt($('.product_id').attr('value'));
         if (new_user < min_users){
-            alert("User must be more than or equal to "+ min_users);
+            alert(_t("User must be more than or equal to %s", min_users));
         }
         else if(new_user > max_users && max_users !== -1){
-            alert("User must be less than or equal to "+ max_users);
+            alert(_t("User must be less than or equal to %s", max_users));
         }else{
             const data = await this.orm.read("product.product",[product_id], ['user_cost'])
                 var total_amount = new_user * parseFloat(data[0]['user_cost']);
@@ -76,10 +77,10 @@ publicWidget.registry.SaasUserCount = publicWidget.Widget.extend({
         var max_users = parseInt($('#max_user_quantity').attr('value'));
         var new_user = parseInt($('#new_min_user').val());
         if (new_user < min_users){
-            alert("User must be more than or equal to "+ min_users);
+            alert(_t("User must be more than or equal to %s", min_users));
         }
         else if(new_user > max_users && max_users !== -1){
-            alert("User must be less than or equal to "+ max_users);
+            alert(_t("User must be less than or equal to %s", max_users));
         }else{
             $('#min_user').text(new_user);
             $('#number_of_user').attr('value',new_user);

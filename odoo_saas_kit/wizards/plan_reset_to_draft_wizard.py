@@ -1,4 +1,4 @@
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import UserError
 import logging
@@ -24,4 +24,4 @@ class PlanReset(models.TransientModel):
        for obj in self.plan_id:
             contracts = self.env['saas.contract'].search([('plan_id', '=', obj.id)])
             if contracts:
-                raise UserError("This plan has some contracts associated with it!")
+                raise UserError(_("This plan has some contracts associated with it!"))

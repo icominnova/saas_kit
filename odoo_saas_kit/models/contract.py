@@ -24,6 +24,34 @@ import xmlrpc.client
 
 _logger = logging.getLogger(__name__)
 
+
+def _translate_custom_domain_message(message):
+    """Translate stable custom-domain errors without changing security helpers."""
+    if not isinstance(message, str):
+        return message
+
+    translations = {
+        "Unable to remove custom domain vhost":
+            _("Unable to remove custom domain vhost"),
+
+        "Custom domain removal failed":
+            _("Custom domain removal failed"),
+
+        "HTTP vhost generation failed":
+            _("HTTP vhost generation failed"),
+
+        "SSL certificate generation failed":
+            _("SSL certificate generation failed"),
+
+        "HTTPS vhost generation failed":
+            _("HTTPS vhost generation failed"),
+
+        "Custom domain configuration failed":
+            _("Custom domain configuration failed"),
+    }
+
+    return translations.get(message, message)
+
 CONTRACT_STATE = [
     ('draft', "Draft"),
     ('open', "Open"),
@@ -161,9 +189,9 @@ class SaasContract(models.Model):
             obj.contract_price = obj.contract_rate * obj.total_cycles    
             if obj.per_user_pricing and obj.saas_users:
                 if obj.saas_users < obj.min_users:
-                    raise UserError("No. of users can't be less than %r"%obj.min_users)
+                    raise UserError(_("No. of users can't be less than %r")%obj.min_users)
                 if obj.max_users != -1 and obj.saas_users > obj.max_users:
-                    raise UserError("No. of users can't be greater than %r"%obj.max_users)
+                    raise UserError(_("No. of users can't be greater than %r")%obj.max_users)
                 obj.user_billing = obj.saas_users * obj.user_cost * obj.total_cycles
             obj.total_cost = obj.contract_price + obj.user_billing
             _logger.info("+++11++++OBJ>TOTALCOST+++++++%s",obj.total_cost)
@@ -332,7 +360,7 @@ class SaasContract(models.Model):
                 if obj.saas_client and obj.saas_client.state == 'cancel':
                     obj.state = "cancel"              
                 else:
-                    raise UserError("Please Cancel the Linked client first before cancel the Contract.")
+                    raise UserError(_("Please Cancel the Linked client first before cancel the Contract."))
 
     def resume_contract(self):
         """
@@ -358,14 +386,14 @@ class SaasContract(models.Model):
         self.print_logs('info', 'called update_user_data', '257')
         for obj in self:
             if obj.plan_id.use_specific_user_template and not obj.plan_id.template_user_id:
-                raise UserError("Database Template User ID Not Set!")
+                raise UserError(_("Database Template User ID Not Set!"))
             elif obj.plan_id.template_user_id:
                 try:
                     _ = int(obj.plan_id.template_user_id)
                 except Exception as e:
-                    raise UserError("Database Template ID Must be a Integer Value!")
+                    raise UserError(_("Database Template ID Must be a Integer Value!"))
             if not obj.saas_client.client_url or not obj.saas_client.database_name:
-                raise UserError("Go to Saas Client record and Create Client Instance first!!!")
+                raise UserError(_("Go to Saas Client record and Create Client Instance first!!!"))
             token = generate_token()
             if (obj._fields.get('version_code') and int(obj.version_code[:2]) >= 18) or not obj._fields.get('version_code'):
                 token = obj.generate_signup_auth_token()
@@ -376,7 +404,7 @@ class SaasContract(models.Model):
                     obj.update_billing_history(first=True)
                     obj.previous_cycle_user = max(obj.min_users, obj.saas_users)
             except Exception as e:
-                raise UserError("Unable To Write User Data %r"%e)
+                raise UserError(_("Unable To Write User Data %r")%e)
             try:
                 obj.sudo().set_user_data(token=token)
                 obj.env.cr.commit()
@@ -384,19 +412,19 @@ class SaasContract(models.Model):
                 obj.saas_client.invitation_url = reset_pwd_url
             except Exception as e:
                 _logger.info("--------EXCEPTION-WHILE-UPDATING-DATA-AND-SENDING-INVITE-------%r----", e)
-                raise UserError('Exception while updating client data.')
+                raise UserError(_('Exception while updating client data.'))
 
     def send_invitation_email(self):
         for obj in self:
             if not obj.saas_client or (obj.saas_client and not obj.saas_client.client_url):
                 obj.invitation_mail_error = True
                 obj.invitation_mail_sent = False
-                raise UserError("Unable To Send Invitation Email\nERROR: Make Sure That Client Url Is Created!")
+                raise UserError(_("Unable To Send Invitation Email\nERROR: Make Sure That Client Url Is Created!"))
 
             if obj.saas_client and obj.saas_client.client_url and (not obj.saas_client.invitation_url):
                 obj.invitation_mail_error = True
                 obj.invitation_mail_sent = False
-                raise UserError("Unable To Send Invitation Email\nERROR: Please Set User Data First!")
+                raise UserError(_("Unable To Send Invitation Email\nERROR: Please Set User Data First!"))
             else:
                 if (obj._fields.get('version_code') and int(obj.version_code[:2]) >= 18) or not obj._fields.get('version_code'):
                     token = obj.generate_signup_auth_token()
@@ -419,7 +447,7 @@ class SaasContract(models.Model):
             partner_id = obj.partner_id
             user_id = self.env['res.users'].search([('partner_id', '=', obj.partner_id.id)], limit=1)
             if not user_id and not partner_id.email:
-                raise UserError("Please Specify The Email Of The Selected Partner!")
+                raise UserError(_("Please Specify The Email Of The Selected Partner!"))
             host_server, db_server = obj.server_id.get_server_details()
             data['database'] = obj.saas_client and obj.saas_client.database_name or False
             data['user_id'] = obj.plan_id.use_specific_user_template and obj.plan_id.template_user_id and int(obj.plan_id.template_user_id)
@@ -470,7 +498,7 @@ class SaasContract(models.Model):
                 obj.user_data_updated = False
                 obj.user_data_error = True
                 self.env.cr.commit()
-                raise UserError(f"Unable To Write User Data. {'Error: '+str(response['result']) if response['result'] else None}")
+                raise UserError(_('Unable To Write User Data. %s', 'Error: '+str(response['result']) if response['result'] else None))
             if obj.per_user_pricing:
                 vals = dict()
                 vals['database'] = obj.saas_client and obj.saas_client.database_name or False
@@ -517,11 +545,11 @@ class SaasContract(models.Model):
                 obj.send_invitation_email()
             else:
                 if not obj.domain_name:
-                    raise UserError("Please select a domain first!")
+                    raise UserError(_("Please select a domain first!"))
                 if obj.under_process:
-                    raise UserError("Client Creation Already Under Progress!")
+                    raise UserError(_("Client Creation Already Under Progress!"))
                 if not obj.pricelist_id:
-                    raise UserError("Please set the pricelist for the contract first!")
+                    raise UserError(_("Please set the pricelist for the contract first!"))
                 else:
                     domain_name = None
                     if obj.use_separate_domain:
@@ -539,7 +567,7 @@ class SaasContract(models.Model):
                     obj.under_process = False
                     obj.domain_name = False
                     self.env.cr.commit()
-                    raise UserError("This domain name is already in use! please try some other domain name!")
+                    raise UserError(_("This domain name is already in use! please try some other domain name!"))
 
                 obj.under_process = True
                 self.env.cr.commit()
@@ -550,7 +578,7 @@ class SaasContract(models.Model):
                 if obj.server_id.max_clients <= obj.server_id.total_clients:
                     obj.under_process = False
                     self.env.cr.commit()
-                    raise UserError("Maximum Clients limit reached!")
+                    raise UserError(_("Maximum Clients limit reached!"))
                 
                 custom_domains = [cst_dmn.name for contract in self.sudo().search([]) for cst_dmn in contract.custom_domain_ids if cst_dmn.status=='active']
                 if domain_name in custom_domains:
@@ -558,7 +586,7 @@ class SaasContract(models.Model):
                     obj.under_process = False
                     obj.domain_name = False
                     self.env.cr.commit()
-                    raise UserError("This domain name is already in use as a custom domain! Please try some other domain name!")
+                    raise UserError(_("This domain name is already in use as a custom domain! Please try some other domain name!"))
 
 
                 vals = dict(
@@ -583,7 +611,7 @@ class SaasContract(models.Model):
                     obj.under_process = False
                     self.env.cr.commit()
                     _logger.info("--------Exception-While-Creating-Client-------%r", e)
-                    raise UserError("Exception While Creating Client {}".format(e))
+                    raise UserError(_("Exception While Creating Client {}").format(e))
                 else:
                     obj.write({'state': 'open'})
                     obj.under_process = False
@@ -687,7 +715,7 @@ class SaasContract(models.Model):
             if self.server_id.max_clients <= self.server_id.total_clients:
                 self.under_process = False
                 self.env.cr.commit()
-                raise UserError("Maximum Clients limit reached!")
+                raise UserError(_("Maximum Clients limit reached!"))
 
 
     # Used to create the clients and share credentials for the contracts.
@@ -695,11 +723,11 @@ class SaasContract(models.Model):
         self.print_logs('info', 'called create_saas_client', '563')
         for obj in self:
             if not obj.domain_name:
-                raise UserError("Please select a domain first!")
+                raise UserError(_("Please select a domain first!"))
             if obj.under_process:
-                raise UserError("Client Creation Already Under Progress!")
+                raise UserError(_("Client Creation Already Under Progress!"))
             if not obj.pricelist_id:
-                raise UserError("Please set the pricelist for the contract first!")
+                raise UserError(_("Please set the pricelist for the contract first!"))
             else:
                 domain_name = None
                 if obj.use_separate_domain:
@@ -716,7 +744,7 @@ class SaasContract(models.Model):
                     obj.under_process = False
                     obj.domain_name = False
                     self.env.cr.commit()
-                    raise UserError("This domain name is already in use! Please try some other domain name!")
+                    raise UserError(_("This domain name is already in use! Please try some other domain name!"))
 
                 obj.under_process = True
                 self.env.cr.commit()
@@ -726,7 +754,7 @@ class SaasContract(models.Model):
                 if obj.server_id.max_clients <= obj.server_id.total_clients:
                     obj.under_process = False
                     self.env.cr.commit()
-                    raise UserError("Maximum Clients limit reached!")
+                    raise UserError(_("Maximum Clients limit reached!"))
 
                 custom_domains = [cst_dmn.name for contract in self.sudo().search([]) for cst_dmn in contract.custom_domain_ids if cst_dmn.status=='active']
                 if domain_name in custom_domains:
@@ -734,7 +762,7 @@ class SaasContract(models.Model):
                     obj.under_process = False
                     obj.domain_name = False
                     self.env.cr.commit()
-                    raise UserError("This domain name is already in use as a custom domain! Please try some other domain name!")
+                    raise UserError(_("This domain name is already in use as a custom domain! Please try some other domain name!"))
 
 
                 vals = dict(
@@ -758,7 +786,7 @@ class SaasContract(models.Model):
                     obj.under_process = False
                     self.env.cr.commit()
                     _logger.info("--------Exception-While-Creating-Client-------%r", e)
-                    raise UserError("Exception While Creating Client {}".format(e))
+                    raise UserError(_("Exception While Creating Client {}").format(e))
                 else:
                     obj.write({'state': 'open'})
                     obj.under_process = False
@@ -776,7 +804,7 @@ class SaasContract(models.Model):
                             self.env.cr.commit()
                         except Exception as e:
                             _logger.info("--------EXCEPTION-WHILE-UPDATING-DATA-------%r----", e)
-                            raise UserError(f"Exception While Updating Client Data {e}")
+                            raise UserError(_('Exception While Updating Client Data %s', e))
                         else:
                             reset_pwd_url = "{}/web/signup?token={}&db={}".format(client_id.client_url, token, client_id.database_name)
                             client_id.invitation_url = reset_pwd_url
@@ -858,9 +886,14 @@ class SaasContract(models.Model):
                             response = response.get('result')
                             user_count = response[0][0]
                         else:
-                            raise UserError(response.get('message'))
+                            raise UserError(
+                                _(
+                                    "Unable to retrieve the SaaS client user count. Technical error: %s",
+                                    response.get('message'),
+                                )
+                            )
                         if obj.plan_id.max_users != -1 and user_count > obj.plan_id.max_users:
-                            raise UserError("Client have crossed the maximum user limit.")
+                            raise UserError(_("Client have crossed the maximum user limit."))
                         user_count = max(user_count, obj.saas_users)
                         if user_count > obj.previous_cycle_user:
                             arrer_response = query.get_arrear_users(
@@ -869,11 +902,11 @@ class SaasContract(models.Model):
                                 limit = user_count - obj.previous_cycle_user,
                             )
                             if not arrer_response.get('status'):
-                                raise UserError("Couldn't fetch arrer users! Please try again.")
+                                raise UserError(_("Couldn't fetch arrer users! Please try again."))
                             data = obj.calculate_arrear_price(arrer_response)
 
                     if not user_count:
-                        raise UserError("Couldn't fetch user count! Please try again later.")                    
+                        raise UserError(_("Couldn't fetch user count! Please try again later."))
                 try:
                     price = None                    
                     if first_invoice == True:
@@ -907,7 +940,7 @@ class SaasContract(models.Model):
                     _logger.info("--------Invoice--Created-------%r", invoice)
                 except Exception as e:
                     _logger.info("--------Exception-While-Creating-Invoice-------%r", e)
-                    raise UserError("Exception While Creating Invoice: {}".format(e))
+                    raise UserError(_("Exception While Creating Invoice: {}").format(e))
                 else:
                     old_date = obj.next_invoice_date and fields.Date.from_string(obj.next_invoice_date) or fields.Date.from_string(fields.Date.today())
                     if first_invoice == True:
@@ -919,7 +952,7 @@ class SaasContract(models.Model):
                     next_date = fields.Date.to_string(old_date + relative_delta)
                     obj.next_invoice_date = next_date
             else:
-                raise UserError("This Contract Has Expired!")
+                raise UserError(_("This Contract Has Expired!"))
 
     # Sends the subdomain selection url to the customer
     @api.model
@@ -931,7 +964,7 @@ class SaasContract(models.Model):
     def send_credential_email(self):
         self.ensure_one()
         if not self.saas_client.client_url:
-            raise UserError("SaaS Instance Not Found! Please create it from the associated client record for sharing the credentials.")
+            raise UserError(_("SaaS Instance Not Found! Please create it from the associated client record for sharing the credentials."))
         
         template = self.on_create_email_template
         compose_form = self.env.ref('mail.email_compose_message_wizard_form')
@@ -949,7 +982,7 @@ class SaasContract(models.Model):
                 self.state = 'confirm'
             except Exception as e:
                 _logger.info("--------EXCEPTION-WHILE-UPDATING-DATA-AND-SENDING-INVITE-------%r----", e)
-                raise UserError(f"Exception While Updating Client Data {e}")
+                raise UserError(_('Exception While Updating Client Data %s', e))
 
             ctx = dict(
                 default_model='saas.client',
@@ -970,7 +1003,7 @@ class SaasContract(models.Model):
                 'context': ctx,
             }
         else:
-            raise UserError("SaaS Instance Not Found! Please create it from the associated client record for sharing the credentials.")
+            raise UserError(_("SaaS Instance Not Found! Please create it from the associated client record for sharing the credentials."))
 
 
     @api.model
@@ -1015,35 +1048,35 @@ class SaasContract(models.Model):
         for obj in self:
             if vals.get('active')==False:
                 if obj.state != 'cancel':
-                    raise UserError("Please cancel the SaaS contract before archiving it.")
+                    raise UserError(_("Please cancel the SaaS contract before archiving it."))
         if vals.get('domain_name'):
             if(vals.get('domain_name')[0]=='-' or vals.get('domain_name')[0]=='_'):
-                raise UserError("Please enter a valid domain name.")
+                raise UserError(_("Please enter a valid domain name."))
             regex = r"([a-zA-Z0-9_.-]+)"
             match = re.fullmatch(regex, vals.get('domain_name'))
             if match == None:
-                raise UserError("Please enter domain name in only [a-zA-Z0-9] or [a-zA-Z0-9_.-] format with no blank spaces.")
+                raise UserError(_("Please enter domain name in only [a-zA-Z0-9] or [a-zA-Z0-9_.-] format with no blank spaces."))
         return super(SaasContract, self).write(vals)
     
     def unlink(self):
         for obj in self:
             if obj.saas_client:
-                raise UserError("Error: You must delete the associated SaaS Client first!")
+                raise UserError(_("Error: You must delete the associated SaaS Client first!"))
         return super(SaasContract, self).unlink()
 
     def add_custom_domain(self, domain=None, is_ssl=False):
         if not domain:
-            raise UserError("Please Enter a Domain Name")
+            raise UserError(_("Please Enter a Domain Name"))
         
         contracts = self.sudo().search([('domain_name', '=ilike', domain.split('.')[0]), ('state', '!=', 'cancel')])
         if len(contracts) > 0:
             _logger.info("---------ALREADY TAKEN--------%r", contracts)
-            raise UserError("This domain name is already in use! Please try some other domain name!")
+            raise UserError(_("This domain name is already in use! Please try some other domain name!"))
         
         custom_domains = [cst_dmn.name for contract in self.sudo().search([]) for cst_dmn in contract.custom_domain_ids if cst_dmn.status=='active']
         if domain in custom_domains:
             _logger.info("---------ALREADY TAKEN IN CUSTOM DOMAIN--------")
-            raise UserError("This domain name is already in use as a custom domain! Please try some other domain name!")
+            raise UserError(_("This domain name is already in use as a custom domain! Please try some other domain name!"))
         module_path = tools.misc.file_path('odoo_saas_kit')
         subdomain_name = self.domain_name
         if not self.use_separate_domain:
@@ -1062,7 +1095,9 @@ class SaasContract(models.Model):
             self.saas_client.login_with_custom_domain = True
 
         else:
-            error = response.get('message')
+            error = _translate_custom_domain_message(
+                response.get('message')
+            )
             raise UserError(error)
 
     def revoke_subdomain(self, custom_domain=None):
@@ -1077,8 +1112,12 @@ class SaasContract(models.Model):
                 self.saas_client.login_with_custom_domain = False
             return response
         else:
-            error = response.get('message')
-            raise UserError("ER 502: {}".format(error))
+            error = _translate_custom_domain_message(
+                response.get('message')
+            )
+            raise UserError(
+                _("ER 502: %s", error)
+            )
 
     @api.model
     def redirect_invitation_url(self, contract_id=None):
@@ -1106,10 +1145,13 @@ class SaasContract(models.Model):
                         response = response.get('result')
                         user_count = response[0][0]
                     else:
-                        res['message'] = response.get('message')
+                        res['message'] = _(
+                            "Unable to retrieve the SaaS client user count. Technical error: %s",
+                            response.get('message'),
+                        )
                         return res
                     if obj.plan_id and obj.plan_id.max_users != -1 and user_count > obj.plan_id.max_users:
-                        res['message'] = "Client have crossed the maximum user limit."
+                        res['message'] = _("Client have crossed the maximum user limit.")
                         return res
                     user_count = max(user_count, obj.saas_users)
                     if user_count > obj.previous_cycle_user:
@@ -1119,12 +1161,12 @@ class SaasContract(models.Model):
                             limit = user_count - obj.previous_cycle_user,
                         )
                         if not arrer_response.get('status'):
-                            res['message'] = "Couldn't fetch arrer users! Please try again."
+                            res['message'] = _("Couldn't fetch arrer users! Please try again.")
                             return res
                         data = obj.calculate_arrear_price(arrer_response)
 
                 if not user_count:
-                    res['message'] = "Couldn't fetch user count! Please try again later."
+                    res['message'] = _("Couldn't fetch user count! Please try again later.")
                     return res                    
             try:
                 price = None                    
@@ -1157,7 +1199,7 @@ class SaasContract(models.Model):
                 res['invoice_id'] = invoice.id
             except Exception as e:
                 _logger.info("--------Exception-While-Creating-Invoice-------%r", e)
-                res['message'] = f"There is some issue in renewing contract. Please contact admin."
+                res['message'] = _("There is some issue in renewing contract. Please contact admin.")
        
         return res
             

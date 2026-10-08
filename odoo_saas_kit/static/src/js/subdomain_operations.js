@@ -2,6 +2,7 @@
 
 import publicWidget from "@web/legacy/js/public/public_widget";
 import { rpc } from "@web/core/network/rpc";
+import { _t } from "@web/core/l10n/translation";
 
 
 publicWidget.registry.ContractSubdomainOperations = publicWidget.Widget.extend({
@@ -58,7 +59,7 @@ publicWidget.registry.ContractSubdomainOperations = publicWidget.Widget.extend({
     },
 
     _onClickRevokeDomain:function(ev){
-        var answer = confirm("Are You Sure You want to Revoke this domain..?");
+        var answer = confirm(_t("Are You Sure You want to Revoke this domain..?"));
         if (answer == true){
             var domain_id = parseInt($(ev.currentTarget).attr('domain_id'));
             this.orm.call("custom.domain", "revoke_subdomain_call", [domain_id])

@@ -7,7 +7,7 @@
 # 
 #################################################################################
 
-from odoo import fields, models, api
+from odoo import fields, models, api, _
 from odoo.exceptions import UserError,  ValidationError
 from . lib import saas_client_db
 from . lib import query
@@ -45,7 +45,7 @@ class ModuleStatus(models.Model):
                 login = response[0][0]
                 password = response[0][1]
             else:
-                raise UserError("ERR001: "+str(response.get('message')))
+                raise UserError(_("ERR001: ")+str(response.get('message')))
             
             endpoint = str(host_server.get('host')) if (host_server['server_type'] == 'remote') else "localhost"
             saas_port = obj.client_id.container_port
@@ -62,7 +62,7 @@ class ModuleStatus(models.Model):
             response = saas_client_db.create_saas_client(**data)
             if not response.get("modules_installation", False):
                 missed_list = ", ".join(response.get('modules_missed'))
-                raise UserError("Could't Install the following modules:\n{}".format(missed_list))
+                raise UserError(_("Could't Install the following modules:\n{}").format(missed_list))
             else:
                 obj.status = "installed"
 
@@ -76,4 +76,4 @@ class ModuleStatus(models.Model):
         try:
             self.plan_id.install_remaining_modules([self.technical_name],self)
         except:
-            raise UserError(f"{self.technical_name} is not installed Please check Error tab!! ")
+            raise UserError(_('%s is not installed Please check Error tab!! ', self.technical_name))

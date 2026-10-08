@@ -2,6 +2,7 @@
 
 import publicWidget from "@web/legacy/js/public/public_widget";
 import { rpc } from "@web/core/network/rpc";
+import { _t } from "@web/core/l10n/translation";
 
 
 
@@ -37,7 +38,7 @@ publicWidget.registry.ContractSubdomainPage = publicWidget.Widget.extend({
         else{
             var domain_name = subdomain_name
             self.ui.block({ 
-                message: 'Please wait! We are creating your SaaS Instance.',
+                message: _t("Please wait! We are creating your SaaS Instance."),
             });
             rpc("/mail/confirm_domain", {
                 'domain_name': domain_name,

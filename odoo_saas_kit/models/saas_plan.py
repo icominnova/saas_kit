@@ -7,7 +7,7 @@
 #
 #################################################################################
 from urllib.parse import urlparse
-from odoo import api, fields, models, tools
+from odoo import api, fields, models, tools, _
 from odoo.exceptions import UserError, ValidationError
 from . lib import containers, install_module
 from odoo.api import NewId
@@ -191,18 +191,18 @@ class SaasPlans(models.Model):
         """
         
         if any(len(plan.default_saas_servers_ids) != len(plan.default_saas_servers_ids.mapped('server_id')) for plan in self):
-            raise ValidationError(('You cannot define two Priorities lines for the same Server.'))
+            raise ValidationError((_('You cannot define two Priorities lines for the same Server.')))
         for obj in self:
             if obj.is_multi_server and not len(obj.default_saas_servers_ids):
-                raise UserError("Please select atleast one server in Default Saas servers")
+                raise UserError(_("Please select atleast one server in Default Saas servers"))
             
             if obj.is_multi_server and len(obj.default_saas_servers_ids.mapped('priority')) != len(set(obj.default_saas_servers_ids.mapped('priority'))):
-                raise UserError("Two servers cannot have same priority, Please udpate priority for remote servers.")
+                raise UserError(_("Two servers cannot have same priority, Please udpate priority for remote servers."))
 
             for server_id in obj.default_saas_servers_ids.mapped('server_id'):
                 for field in ('db_host', 'db_port', 'db_user', 'db_pass'):
                     if server_id.mapped(field) != obj.server_id.mapped(field):
-                        raise UserError("Select only those Server whose database server is same as {} server".format(obj.server_id.name))
+                        raise UserError(_("Select only those Server whose database server is same as {} server").format(obj.server_id.name))
             return True
 
     
@@ -214,7 +214,7 @@ class SaasPlans(models.Model):
         
         for obj in self:
             if obj.max_users != -1 and obj.max_users < obj.min_users:
-                raise UserError("Max. No. of users must be greater than or Equal to Min. no. of users")
+                raise UserError(_("Max. No. of users must be greater than or Equal to Min. no. of users"))
             else:
                 obj.max_users = obj.max_users
 
@@ -225,9 +225,9 @@ class SaasPlans(models.Model):
         """
         for obj in self:
             if obj.min_users < 1:
-                raise UserError("Min. No. of users can't be less than 1")
+                raise UserError(_("Min. No. of users can't be less than 1"))
             if obj.min_users > obj.max_users:
-                raise UserError("Max. No. of users must be greater than or Equal to Min. no. of users")
+                raise UserError(_("Max. No. of users must be greater than or Equal to Min. no. of users"))
 
     def reset_to_draft(self):
         """
@@ -238,7 +238,7 @@ class SaasPlans(models.Model):
         for obj in self:
             contracts = self.env['saas.contract'].search([('plan_id', '=', obj.id)])
             if contracts:
-                raise UserError("This plan has some contracts associated with it!")
+                raise UserError(_("This plan has some contracts associated with it!"))
             obj.state = 'draft'
 
     @api.model
@@ -257,11 +257,11 @@ class SaasPlans(models.Model):
                         server = priority.server_id
                         break
                 else:
-                    return (False, 'All server limits over. Please create a new server!')
+                    return (False, _("All server limits over. Please create a new server!"))
                 return (True, server)
 
             else:
-                return (False, 'Please select atleast one server in Default Saas servers')
+                return (False, _("Please select atleast one server in Default Saas servers"))
         self.print_logs('info', 'Return from select_server', '259')
 
     def login_to_db_template(self):
@@ -292,7 +292,7 @@ class SaasPlans(models.Model):
                 }
             else:
                 self.print_logs('error', 'get empty response from get_credentails', '288')
-                raise UserError("ERR001: "+str(response.get('message')))
+                raise UserError(_("ERR001: ")+str(response.get('message')))
 
     def restart_db_template(self):
         """
@@ -310,7 +310,7 @@ class SaasPlans(models.Model):
                 db_server=db_server)
             if not response_flag:
                 self.print_logs('error', 'Failed to start the container', '306')
-                raise UserError("Operation Failed! Unknown Error!")
+                raise UserError(_("Operation Failed! Unknown Error!"))
 
     def force_confirm(self):
         """
@@ -321,14 +321,14 @@ class SaasPlans(models.Model):
         for obj in self:
             response = None
             if not obj.container_id:
-                raise UserError("Please create DB Template First!")
+                raise UserError(_("Please create DB Template First!"))
             elif obj.container_id and not obj.db_template:
-                raise UserError("Please enter DB Template First!")
+                raise UserError(_("Please enter DB Template First!"))
             else:
                 _, db_server = obj.server_id.get_server_details()
                 response = query.is_db_exist(obj.db_template, db_server=db_server)
                 if not response.get('result'):
-                    raise UserError("DB Template doesn't exist. Please create DB Template First!")
+                    raise UserError(_("DB Template doesn't exist. Please create DB Template First!"))
             obj.state = 'confirm'
             obj.create_status_modules()
             obj.get_installable_modules()
@@ -386,18 +386,21 @@ class SaasPlans(models.Model):
                             module.status="installed"
                             module.error_message = ""
                         else:
-                            module.error_message = "Error: " + response['modules_missed'][module.technical_name]
+                            module.error_message = _(
+                                "Error: %s",
+                                response['modules_missed'][module.technical_name],
+                            )
                         if not self.get_installable_modules():
                             self.is_all_installed=True
                         self.env.cr.commit()
                     if response.get('modules_installation', False):
                         self.state = 'confirm'
                     else:
-                        raise UserError("Some Modules are not insatlled Please check Error tab")
+                        raise UserError(_("Some Modules are not insatlled Please check Error tab"))
                 else:
-                    raise UserError("No Response. Please try again later")
+                    raise UserError(_("No Response. Please try again later"))
         else:
-            raise UserError("Details Not found !")
+            raise UserError(_("Details Not found !"))
 
         
 
@@ -412,11 +415,11 @@ class SaasPlans(models.Model):
         
         for obj in self:
             if not obj.server_id.state=='confirm':
-                raise UserError("The connected server is not in confirm state.")
+                raise UserError(_("The connected server is not in confirm state."))
             if not obj.db_template:
-                raise UserError("Please select the DB template name first.")
+                raise UserError(_("Please select the DB template name first."))
             if re.match("^template_",obj.db_template):
-                raise UserError("Couldn't Create DB. Please try again with some other Template Name!")
+                raise UserError(_("Couldn't Create DB. Please try again with some other Template Name!"))
             db_template_name = "template_{}".format(obj.db_template)
             config_path = tools.misc.file_path('odoo_saas_kit')
             status_module = obj.create_status_modules()
@@ -447,26 +450,31 @@ class SaasPlans(models.Model):
                                 if not module.technical_name in list(response['result']['modules_missed'].keys()):
                                     module.status="installed"
                                 else:
-                                    module.error_message = "Error: " + response['result']['modules_missed'][module.technical_name]
+                                    module.error_message = _(
+                                        "Error: %s",
+                                        response['result']['modules_missed'][module.technical_name],
+                                    )
                                 if not self.get_installable_modules():
                                     self.is_all_installed=True
 
                     else:
                         msg = response.get('msg', False)
                         if msg:
+                            if msg == "Couldn't Create DB. Please ensure that template server is running, you may need to restart it once!!":
+                                msg = _("Couldn't Create DB. Please ensure that template server is running, you may need to restart it once!!")
                             raise UserError(msg)
                         else:
-                            raise UserError("Unknown Error. Please try again later with some different Template Name")
+                            raise UserError(_("Unknown Error. Please try again later with some different Template Name"))
                 else:
-                    raise UserError("No Response. Please try again later with some different Template Name")
+                    raise UserError(_("No Response. Please try again later with some different Template Name"))
 
     def cancel_plan(self):
         for obj in self:
             contracts = self.env['saas.contract'].search([('plan_id', '=', obj.id),('state', '!=', 'cancel')])
             if contracts:
-                raise UserError("Please Cancel the Linked Contract first before cancel the Plan.")
+                raise UserError(_("Please Cancel the Linked Contract first before cancel the Plan."))
             elif obj.state=='confirm':
-                raise UserError("Please reset the plan to draft before cancelling it.")
+                raise UserError(_("Please reset the plan to draft before cancelling it."))
             else:
                 obj.state = 'cancel'
                 for res in obj.product_template_ids:
@@ -482,7 +490,7 @@ class SaasPlans(models.Model):
         
         for obj in self:
             if obj.contract_count:
-                raise UserError("Error: You must delete the associated SaaS Contracts first!")
+                raise UserError(_("Error: You must delete the associated SaaS Contracts first!"))
         return super(SaasPlans, self).unlink()
 
     @api.model_create_multi
@@ -495,16 +503,16 @@ class SaasPlans(models.Model):
             if vals.get('server_id', None):
                 server_obj = self.env['saas.server'].sudo().browse([vals.get('server_id')])
                 if not server_obj.state=='confirm':
-                    raise UserError("The selected saas server is not confirmed yet. Please configure the saas server first.")
+                    raise UserError(_("The selected saas server is not confirmed yet. Please configure the saas server first."))
             
             if vals.get('recurring_interval', 0) <= 0:
-                raise UserError("Default Billing Cycle can't be less than 1")
+                raise UserError(_("Default Billing Cycle can't be less than 1"))
             if vals.get('is_multi_server', False) and not vals.get('default_saas_servers_ids', False):
-                raise UserError("Select Atleast one Server in Default Saas Servers")
+                raise UserError(_("Select Atleast one Server in Default Saas Servers"))
             
 
             if vals.get('trial_period', 0) < 0:
-                raise UserError("Complimentary Free days can't be less than 0")
+                raise UserError(_("Complimentary Free days can't be less than 0"))
         res = super(SaasPlans, self).create(val_list)
         for obj in res:
             if obj.name and not obj.db_template:
@@ -519,18 +527,18 @@ class SaasPlans(models.Model):
         
         initial_list = self.saas_module_ids.ids
         if vals.get('recurring_interval', False) and vals['recurring_interval'] <= 0:
-            raise UserError("Default Billing Cycle can't be less than 1")
+            raise UserError(_("Default Billing Cycle can't be less than 1"))
         if vals.get('trial_period', False) and vals['trial_period'] < 0:
-            raise UserError("Complimentary Free days can't be less than 0")
+            raise UserError(_("Complimentary Free days can't be less than 0"))
         if vals.get('is_multi_server', False) and not vals.get('default_saas_servers_ids', False):
-            raise UserError("Select Atleast one Server in Default Saas Servers")
+            raise UserError(_("Select Atleast one Server in Default Saas Servers"))
 
 
         ##Fix for restriction on Installed Module unlinking from Saas Plan
         for obj in self:
             if vals.get('active')==False:
                 if obj.state != 'cancel':
-                    raise UserError("Please cancel the SaaS plan before archiving it.")
+                    raise UserError(_("Please cancel the SaaS plan before archiving it."))
             if vals.get('user_cost') and isinstance(vals.get('user_cost'), int):
                 obj.product_template_ids.product_variant_ids.write({'user_cost': vals.get('user_cost')})
                 
@@ -540,7 +548,7 @@ class SaasPlans(models.Model):
                 deleted_module_list.append(rec[1])
             for rec in self.modules_status_ids:
                 if rec.status =='installed' and rec.module_id.id  in deleted_module_list:
-                    raise UserError("Can't Remoove the saas modules as they are already Installed")
+                    raise UserError(_("Can't Remoove the saas modules as they are already Installed"))
         res = super(SaasPlans, self).write(vals)
 
 
@@ -569,21 +577,21 @@ class SaasPlans(models.Model):
                         self.print_logs('info', 'calling client script', '482')                    
                         response = client.main_plan(obj.db_template, host_server, tools.misc.file_path('odoo_saas_kit'))
                         if not response['db_drop']:
-                            raise UserError("ERROR: Couldn't Drop Database. Please Try Again Later.\n\nOperation\tStatus\n\nDrop database: \t{}\n".format(response['db_drop']))
+                            raise UserError(_("ERROR: Couldn't Drop Database. Please Try Again Later.\n\nOperation\tStatus\n\nDrop database: \t{}\n").format(response['db_drop']))
                         else:
                             obj.db_dropped=True
                     else:
-                        raise UserError("Please cancel the Plan first before drop the db.")
+                        raise UserError(_("Please cancel the Plan first before drop the db."))
                 else:
                     for plan in linked_plans:
                         if plan.state != 'cancel':
-                            raise UserError("Cannot Drop Database: Active plan(s) are linked to this DB")
+                            raise UserError(_("Cannot Drop Database: Active plan(s) are linked to this DB"))
                     if obj.state != 'cancel':
-                        raise UserError("Cannot Drop Database: Active plan(s) are linked to this DB")
+                        raise UserError(_("Cannot Drop Database: Active plan(s) are linked to this DB"))
                     self.print_logs('info', 'calling client script', '496')                    
                     response = client.main_plan(obj.db_template, host_server, tools.misc.file_path('odoo_saas_kit'))
                     if not response['db_drop']:
-                        raise UserError("ERROR: Couldn't Drop Database. Please Try Again Later.\n\nOperation\tStatus\n\nDrop database: \t{}\n".format(response['db_drop']))
+                        raise UserError(_("ERROR: Couldn't Drop Database. Please Try Again Later.\n\nOperation\tStatus\n\nDrop database: \t{}\n").format(response['db_drop']))
                     else:
                         obj.db_dropped=True
                         for plan in linked_plans:

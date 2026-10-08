@@ -7,7 +7,7 @@
 # 
 #################################################################################
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
 import logging
@@ -24,7 +24,7 @@ class PrductTemplate(models.Model):
     def write(self,vals):
         if vals.get('website_published') or vals.get('is_published'):
             if self.saas_plan_id and self.saas_plan_id.state == 'draft':
-                raise UserError("This product can't be published as the related SaaS Plan is in draft state!!")
+                raise UserError(_("This product can't be published as the related SaaS Plan is in draft state!!"))
         return super(PrductTemplate, self).write(vals)
     
 

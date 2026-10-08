@@ -6,13 +6,32 @@
 #   License URL : <https://store.webkul.com/license.html/>
 # 
 #################################################################################
-from odoo import api, fields, models, tools
+from odoo import api, fields, models, tools, _
 from odoo.exceptions import UserError, ValidationError
 from . lib import check_connectivity
 from . lib import check_if_db_accessible
 import logging
 # _logger = logging.Logger(__name__)
 _logger = logging.getLogger(__name__)
+
+
+def _translate_connectivity_message(message):
+    """Translate stable connectivity errors returned by hardened helpers."""
+    if not isinstance(message, str):
+        return message
+
+    translations = {
+        "Remote host connectivity is disabled until hardened transport is configured":
+            _("Remote host connectivity is disabled until hardened transport is configured"),
+
+        "Remote database connectivity is disabled until hardened transport is configured":
+            _("Remote database connectivity is disabled until hardened transport is configured"),
+
+        "Remote SaaS host connectivity is disabled until hardened transport is configured":
+            _("Remote SaaS host connectivity is disabled until hardened transport is configured"),
+    }
+
+    return translations.get(message, message)
 
 
 SERVER_TYPE = [
@@ -124,9 +143,9 @@ class SaasServer(models.Model):
         
         for obj in self:
             if obj.auth_type == "pem" and obj.key_file_path == "":
-                raise UserError("Pem File not found")
+                raise UserError(_("Pem File not found"))
             if obj.auth_type == "password" and obj.sftp_password == "":
-                raise UserError("Password not found")
+                raise UserError(_("Password not found"))
             response = obj.check_host_connected_call()
             if response.get('status'):
                 obj.is_host_validated = True
@@ -135,12 +154,12 @@ class SaasServer(models.Model):
                         obj.state = 'validated'
                 obj.env.cr.commit()
                 # raise UserError("Connection successful!")
-                message = self.env['custom.message.wizard'].create({'message':"Connection successful!"})
+                message = self.env['custom.message.wizard'].create({'message':_("Connection successful!")})
                 action = self.env.ref('odoo_saas_kit.custom_message_wizard_action').read()[0]
                 action['res_id'] = message.id
                 return action
             else:
-                raise UserError(response.get('message'))
+                raise UserError(_translate_connectivity_message(response.get('message')))
                 
     
     def check_host_connected_call(self):
@@ -172,9 +191,9 @@ class SaasServer(models.Model):
                 
         for obj in self:
             if obj.host_server == "remote" and  obj.auth_type == "pem" and not obj.key_file_path:
-                raise UserError("Pem File not found")
+                raise UserError(_("Pem File not found"))
             if obj.host_server == "remote" and  obj.auth_type == "password" and not obj.sftp_password:
-                raise UserError("Password not found")
+                raise UserError(_("Password not found"))
             response = obj.check_db_connection_call()
             if response.get('status'):
                 obj.is_db_validated = True
@@ -185,7 +204,7 @@ class SaasServer(models.Model):
                     else:
                         obj.state = 'validated'
                 obj.env.cr.commit()
-                message = "Connection successful!"
+                message = _("Connection successful!")
                 return {
                     'type': 'ir.actions.client',
                     'tag': 'display_notification',
@@ -197,7 +216,7 @@ class SaasServer(models.Model):
                     },
                 }
             else:
-                raise UserError(response.get('message'))
+                raise UserError(_translate_connectivity_message(response.get('message')))
         
     def check_db_connection_call(self):
         """
@@ -251,9 +270,9 @@ class SaasServer(models.Model):
             plans = self.env['saas.plan'].search([('server_id', '=', obj.id), ('state', '=', 'confirm')])
             clients = self.env['saas.client'].search([('server_id', '=', obj.id), ('state', '!=', 'cancel')])
             if clients:
-                raise UserError("This Server has some confirmed SaaS Client(s)!")
+                raise UserError(_("This Server has some confirmed SaaS Client(s)!"))
             if plans:
-                raise UserError("This Server has some confirmed SaaS Plan(s)!")
+                raise UserError(_("This Server has some confirmed SaaS Plan(s)!"))
             obj.state = 'draft'
 
 
@@ -267,7 +286,7 @@ class SaasServer(models.Model):
                 vals['state'] = "draft"
             if vals.get('active')==False:
                 if obj.state != 'draft':
-                    raise UserError("You cannot archive a validated or confirmed SaaS server.")
+                    raise UserError(_("You cannot archive a validated or confirmed SaaS server."))
         return super(SaasServer, self).write(vals)
     
 
@@ -278,10 +297,10 @@ class SaasServer(models.Model):
         
         for obj in self:
             if obj.state == 'confirm':
-                raise UserError("You must reset the SaaS Server to draft first!")
+                raise UserError(_("You must reset the SaaS Server to draft first!"))
             plans = self.env['saas.plan'].search([('server_id', '=', obj.id), ('state', '=', 'confirm')])
             if plans:
-                raise UserError("You must delete the associated SaaS Plan(s) first!")
+                raise UserError(_("You must delete the associated SaaS Plan(s) first!"))
         return super(SaasServer, self).unlink()
 
     @api.model

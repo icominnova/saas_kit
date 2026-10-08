@@ -7,7 +7,7 @@
 # 
 #################################################################################
 
-from odoo import fields, models, api
+from odoo import fields, models, api, _
 from odoo.exceptions import UserError
 
 class SaasModule(models.Model):
@@ -26,7 +26,7 @@ class SaasModule(models.Model):
     def unlink(self):
         for rec in self:
             if rec.env['saas.module.status'].search([('module_id','=',rec.id)]):
-                raise UserError("Delete the linked client first")
+                raise UserError(_("Delete the linked client first"))
         
         res = super(SaasModule,self).unlink()
         return res

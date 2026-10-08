@@ -7,7 +7,7 @@
 # 
 #################################################################################
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import UserError
 import logging
@@ -87,9 +87,9 @@ class ContractCreation(models.TransientModel):
             obj.contract_price = obj.contract_rate * obj.total_cycles    
             if obj.per_user_pricing and obj.saas_users:
                 if obj.saas_users < obj.min_users:
-                    raise UserError("No. of users can't be less than %r"%obj.min_users)
+                    raise UserError(_("No. of users can't be less than %r")%obj.min_users)
                 if obj.max_users != -1 and obj.saas_users > obj.max_users:
-                    raise UserError("No. of users can't be greater than %r"%obj.max_users)
+                    raise UserError(_("No. of users can't be greater than %r")%obj.max_users)
                 obj.user_billing = obj.saas_users * obj.user_cost * obj.total_cycles
             obj.total_cost = obj.contract_price + obj.user_billing
             _logger.info("+++11++++OBJ>TOTALCOST+++++++%s",obj.total_cost)
@@ -157,7 +157,7 @@ class ContractCreation(models.TransientModel):
                 'domain': {'invoice_product_id' : [('saas_plan_id', '=', int_plan_id)]}
             }
         else:
-            raise UserError("Please Add Related Product First")
+            raise UserError(_("Please Add Related Product First"))
 
 
     def action_create_contract(self):
@@ -165,7 +165,7 @@ class ContractCreation(models.TransientModel):
             if obj.per_user_pricing:
                 obj.user_billing = obj.saas_users * obj.user_cost * obj.total_cycles
                 if obj.saas_users < obj.min_users and obj.max_users != -1 and obj.saas_users > obj.max_users:
-                    raise UserError("Please select number of users in limit {} - {}".format(obj.min_users, obj.max_users))
+                    raise UserError(_("Please select number of users in limit {} - {}").format(obj.min_users, obj.max_users))
             obj.total_cost = obj.contract_price + obj.user_billing
             server_id = None
             if not obj.plan_id.is_multi_server:

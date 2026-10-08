@@ -7,7 +7,7 @@
 # 
 #################################################################################
 
-from odoo import fields, models, api
+from odoo import fields, models, api, _
 from odoo.exceptions import UserError
 
 class SaasModuleCategory(models.Model):
@@ -61,7 +61,7 @@ class SaasModuleCategory(models.Model):
     def _check_category_recursion(self):
         if self.parent_id:
             if self._has_cycle():
-                raise UserError('Error ! You cannot create recursive categories.')
+                raise UserError(_('Error ! You cannot create recursive categories.'))
         return True
 
     @api.model

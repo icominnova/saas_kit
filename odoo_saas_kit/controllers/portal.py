@@ -52,12 +52,12 @@ class CustomerPortal(CustomerPortal):
         try:
             if contract.exists():
                 if partner.id != contract.partner_id.id:
-                    raise AccessError("Not Allowed")
+                    raise AccessError(_("Not Allowed"))
                 else:
                     contract.check_access('read')
             else:
                 _logger.info("------------------ No Record Found--------")
-                raise AccessError("Not allowed")
+                raise AccessError(_("Not allowed"))
         except AccessError:
             _logger.info("-------------5-----------")
             if contract.exists():

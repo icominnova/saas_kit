@@ -44,7 +44,7 @@ class ResConfigSettings(models.TransientModel):
             self.stop_client_paid_contract = False
 
         if self.no_of_mails_paid_contract>self.renew_period_paid_contract:
-            raise UserError(f"No of mail should be less than or equal to Renew period.")
+            raise UserError(_('No of mail should be less than or equal to Renew period.'))
 
         IrDefault.set('res.config.settings', 'renew_period_paid_contract', self.renew_period_paid_contract)
         IrDefault.set('res.config.settings', 'no_of_mails_paid_contract', self.no_of_mails_paid_contract)
